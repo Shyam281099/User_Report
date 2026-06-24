@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>User Progress Report Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --border: #e5e9f2;
+  --text: #1a2233;
+  --text-muted: #64748b;
+  --text-soft: #94a3b8;
+  --primary: #4f46e5;
+  --primary-soft: #eef2ff;
+  --accent-pt: #6366f1;
+  --accent-video: #0ea5e9;
+  --accent-lab: #10b981;
+  --accent-sandbox: #f59e0b;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --shadow: 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+  --shadow-lg: 0 10px 30px rgba(16,24,40,.10);
+  --radius: 14px;
+}
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-2: #1c2230;
+  --border: #2a323c;
+  --text: #e6edf3;
+  --text-muted: #9aa6b2;
+  --text-soft: #6b7785;
+  --primary: #818cf8;
+  --primary-soft: #1e2440;
+  --shadow: 0 1px 3px rgba(0,0,0,.4);
+  --shadow-lg: 0 12px 34px rgba(0,0,0,.5);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.5;
+  -webkit-font-smoothing: antialiased; transition: background .25s, color .25s;
+}
+.app { max-width: 1320px; margin: 0 auto; padding: 0 24px 60px; }
+
+/* Top bar */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px; margin: 0 -24px 8px;
+  background: var(--surface); border-bottom: 1px solid var(--border); backdrop-filter: blur(6px);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .logo { width: 38px; height: 38px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), #7c3aed);
+  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 18px; }
+.brand h1 { font-size: 17px; font-weight: 700; letter-spacing: -.2px; }
+.brand p { font-size: 12px; color: var(--text-muted); }
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+.theme-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px;
+  padding: 7px 14px; font-size: 13px; color: var(--text); }
+.theme-toggle:hover { border-color: var(--primary); }
+.admin-chip { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+.admin-chip .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-soft);
+  color: var(--primary); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin: 20px 0 24px; border-bottom: 1px solid var(--border); }
+.tab { padding: 12px 20px; cursor: pointer; font-size: 14px; font-weight: 600;
+  color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.section-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); }
+.grid { display: grid; gap: 18px; }
+.metric-grid { grid-template-columns: repeat(4, 1fr); margin-bottom: 26px; }
+.product-grid { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 980px) { .product-grid, .metric-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) {
+  .product-grid, .metric-grid { grid-template-columns: 1fr; }
+  .topbar { flex-direction: column; gap: 12px; align-items: flex-start; }
+}
+
+/* Metric cards */
+.metric { padding: 20px; position: relative; }
+.metric .icon { position: absolute; top: 18px; right: 18px; width: 40px; height: 40px;
+  border-radius: 11px; display: grid; place-items: center; font-size: 19px; }
+.metric .label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+.metric .value { font-size: 30px; font-weight: 800; letter-spacing: -.5px; margin: 8px 0 2px; }
+.metric .meta { font-size: 12.5px; color: var(--text-soft); }
+.metric .meta .up { color: var(--success); font-weight: 700; }
+.metric .meta .down { color: var(--danger); font-weight: 700; }
+.bar { height: 7px; border-radius: 999px; background: var(--surface-2); margin-top: 13px; overflow: hidden; }
+.bar > span { display: block; height: 100%; border-radius: 999px; }
+
+/* Product card */
+.pcard { padding: 20px; }
+.pcard-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.pcard-head .dot { width: 12px; height: 12px; border-radius: 4px; }
+.pcard-head h3 { font-size: 15px; font-weight: 700; }
+.pcard-head .tag { margin-left: auto; font-size: 11px; font-weight: 700; padding: 3px 8px;
+  border-radius: 6px; background: var(--surface-2); color: var(--text-muted); }
+.pcard-body { display: flex; align-items: center; gap: 18px; }
+.pchart { width: 92px; height: 92px; flex-shrink: 0; position: relative; }
+.pchart .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+.pchart .center b { font-size: 17px; font-weight: 800; }
+.pchart .center small { font-size: 9.5px; color: var(--text-muted); display: block; }
+.pstats { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 9px 14px; }
+.pstat .k { font-size: 11px; color: var(--text-muted); }
+.pstat .v { font-size: 15px; font-weight: 700; }
+
+/* Charts row */
+.charts-row { grid-template-columns: 1.4fr 1fr; margin: 22px 0; }
+@media (max-width: 980px) { .charts-row { grid-template-columns: 1fr; } }
+.lower-row { grid-template-columns: 1.3fr 1fr; }
+@media (max-width: 980px) { .lower-row { grid-template-columns: 1fr; } }
+.chart-card { padding: 20px; }
+.chart-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.chart-card .sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 280px; }
+.panel { padding: 20px; }
+.panel h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.panel .sub { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 18px; }
+.search { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; }
+.search input { border: none; background: none; outline: none; color: var(--text); width: 100%; font-size: 14px; }
+.search svg { flex-shrink: 0; color: var(--text-soft); }
+select.filter { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 9px 14px; color: var(--text); font-size: 14px; cursor: pointer; outline: none; }
+.btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  border-radius: 10px; padding: 9px 16px; font-size: 14px; font-weight: 600; }
+.btn:hover { border-color: var(--primary); }
+.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.primary:hover { filter: brightness(1.08); }
+
+/* Table */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+thead th { text-align: left; padding: 13px 16px; font-size: 12px; text-transform: uppercase;
+  letter-spacing: .4px; color: var(--text-muted); background: var(--surface-2);
+  border-bottom: 1px solid var(--border); white-space: nowrap; }
+thead th.sortable { cursor: pointer; user-select: none; }
+thead th.sortable:hover { color: var(--text); }
+tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface-2); }
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.user-cell .avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #fff; }
+.user-cell .nm { font-weight: 600; }
+.mini-bar { display: flex; align-items: center; gap: 8px; }
+.mini-bar .track { width: 80px; height: 7px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.mini-bar .track > span { display: block; height: 100%; border-radius: 999px; }
+.mini-bar b { font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.link-btn { color: var(--primary); font-weight: 600; cursor: pointer; background: none; border: none; font-size: 13px; }
+.link-btn:hover { text-decoration: underline; }
+.badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; display: inline-block; }
+.badge.completed,.badge.passed,.badge.validated { background: rgba(22,163,74,.12); color: var(--success); }
+.badge.progress,.badge.active { background: rgba(217,119,6,.14); color: var(--warning); }
+.badge.notstarted,.badge.na { background: rgba(100,116,139,.14); color: var(--text-muted); }
+.badge.failed { background: rgba(220,38,38,.12); color: var(--danger); }
+
+/* Pagination */
+.pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; flex-wrap: wrap; gap: 12px; }
+.pagination .info { font-size: 13px; color: var(--text-muted); }
+.pages { display: flex; gap: 6px; }
+.pages button { min-width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
+.pages button:hover:not(:disabled) { border-color: var(--primary); }
+.pages button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.pages button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Drill-down */
+.hidden { display: none !important; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted);
+  font-size: 14px; cursor: pointer; margin-bottom: 18px; font-weight: 600; }
+.back-link:hover { color: var(--primary); }
+.crumbs { font-size: 12.5px; color: var(--text-soft); margin-bottom: 14px; }
+.crumbs span.c { color: var(--primary); cursor: pointer; font-weight: 600; }
+.crumbs span.c:hover { text-decoration: underline; }
+.user-header { display: flex; align-items: center; gap: 16px; padding: 22px; margin-bottom: 22px; }
+.user-header .avatar { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 22px; color: #fff; }
+.user-header h2 { font-size: 20px; font-weight: 700; }
+.user-header .meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+.user-header .right { margin-left: auto; text-align: right; }
+.user-header .right .big { font-size: 30px; font-weight: 800; }
+.user-header .right small { font-size: 12px; color: var(--text-muted); }
+
+.radial-grid { grid-template-columns: repeat(4, 1fr); margin-bottom: 26px; }
+@media (max-width: 880px) { .radial-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 480px) { .radial-grid { grid-template-columns: 1fr; } }
+.radial-card { padding: 20px; text-align: center; }
+.radial-card .rc-head { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+.radial-card .rc-head .dot { width: 10px; height: 10px; border-radius: 3px; }
+.radial-card .rc-head h4 { font-size: 13.5px; font-weight: 700; }
+.radial-wrap { width: 126px; height: 126px; margin: 0 auto 14px; position: relative; }
+.radial-wrap .center { position: absolute; inset: 0; display: grid; place-items: center; }
+.radial-wrap .center b { font-size: 23px; font-weight: 800; }
+.radial-detail { font-size: 12px; color: var(--text-muted); display: flex; justify-content: center; gap: 14px; }
+.radial-detail span b { color: var(--text); }
+
+/* Course detail header */
+.course-header { padding: 22px; margin-bottom: 20px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.course-header .ch-main h2 { font-size: 19px; font-weight: 700; }
+.course-header .ch-main .meta { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.course-header .cat-pill { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+  background: var(--primary-soft); color: var(--primary); display: inline-block; margin-bottom: 8px; }
+.course-header .ch-prog { margin-left: auto; text-align: center; }
+.ch-ring { width: 90px; height: 90px; position: relative; }
+.ch-ring .center { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; font-size: 19px; }
+
+/* Sub-tabs (product types within a course) */
+.subtabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.subtab { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 9px 16px;
+  border-radius: 10px; border: 1px solid var(--border); background: var(--surface);
+  font-size: 13.5px; font-weight: 600; color: var(--text-muted); }
+.subtab:hover { border-color: var(--primary); }
+.subtab.active { color: #fff; }
+.subtab .count { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px;
+  background: rgba(255,255,255,.25); }
+.subtab:not(.active) .count { background: var(--surface-2); color: var(--text-muted); }
+.subtab .dot { width: 9px; height: 9px; border-radius: 3px; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 100;
+  display: grid; place-items: center; padding: 20px; backdrop-filter: blur(2px); }
+.modal { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto; border: 1px solid var(--border); }
+.modal-head { display: flex; align-items: flex-start; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid var(--border); }
+.modal-head .tag { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 6px; color: #fff; }
+.modal-head h3 { font-size: 17px; font-weight: 700; }
+.modal-head .x { margin-left: auto; cursor: pointer; color: var(--text-muted); font-size: 22px; line-height: 1; background: none; border: none; }
+.modal-body { padding: 16px 24px 24px; }
+.summary-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.summary-row .chip { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; flex: 1; min-width: 120px; }
+.summary-row .chip .k { font-size: 11px; color: var(--text-muted); }
+.summary-row .chip .v { font-size: 17px; font-weight: 800; margin-top: 2px; }
+.act-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px; }
+.empty { text-align: center; padding: 50px 20px; color: var(--text-muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">W</div>
+      <div>
+        <h1>User Progress Report</h1>
+        <p>Business Portal · Company Administrator</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="admin-chip">
+        <div class="avatar">SN</div>
+        <div><div style="font-weight:600;color:var(--text)">Acme Corp</div><div>Admin</div></div>
+      </div>
+      <div class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span><span id="themeText">Dark</span></div>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <nav class="tabs">
+    <div class="tab active" data-tab="org">Overall Organization Progress</div>
+    <div class="tab" data-tab="users">User-wise Progress Report</div>
+  </nav>
+
+  <!-- ================= TAB 1: ORG ================= -->
+  <section id="tab-org">
+    <div class="section-title">Organization Learning Overview</div>
+    <div class="section-sub" id="orgSub">Engagement and outcomes across all enrolled learners.</div>
+
+    <div class="grid metric-grid">
+      <div class="card metric">
+        <div class="icon" style="background:var(--primary-soft);color:var(--primary)">👥</div>
+        <div class="label">Active Learners</div>
+        <div class="value" id="mActive">0</div>
+        <div class="meta" id="mActiveMeta"></div>
+      </div>
+      <div class="card metric">
+        <div class="icon" style="background:rgba(22,163,74,.14);color:var(--success)">🎯</div>
+        <div class="label">Course Completion Rate</div>
+        <div class="value" id="mComp">0%</div>
+        <div class="meta" id="mCompMeta"></div>
+        <div class="bar"><span id="mCompBar" style="width:0%;background:var(--success)"></span></div>
+      </div>
+      <div class="card metric">
+        <div class="icon" style="background:rgba(14,165,233,.14);color:var(--accent-video)">⚡</div>
+        <div class="label">Content Utilization</div>
+        <div class="value" id="mUtil">0%</div>
+        <div class="meta" id="mUtilMeta"></div>
+        <div class="bar"><span id="mUtilBar" style="width:0%;background:var(--accent-video)"></span></div>
+      </div>
+      <div class="card metric">
+        <div class="icon" style="background:rgba(245,158,11,.16);color:var(--accent-sandbox)">📊</div>
+        <div class="label">Avg. Learner Progress</div>
+        <div class="value" id="mAvg">0%</div>
+        <div class="meta" id="mAvgMeta"></div>
+        <div class="bar"><span id="mAvgBar" style="width:0%;background:var(--accent-sandbox)"></span></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="font-size:16px;margin-bottom:14px">Product-wise Summary</div>
+    <div class="grid product-grid" id="productGrid"></div>
+
+    <div class="grid charts-row">
+      <div class="card chart-card">
+        <h3>Utilization vs Completion by Product Type</h3>
+        <div class="sub">Sandbox shows utilization only (excluded from completion)</div>
+        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Learner Progress Distribution</h3>
+        <div class="sub">Number of learners by overall progress band</div>
+        <div class="chart-wrap"><canvas id="distChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid lower-row">
+      <div class="card panel">
+        <h3>Top Courses</h3>
+        <div class="sub">By enrolled learners and completion</div>
+        <div class="table-wrap" style="border:none">
+          <table>
+            <thead><tr><th>Course</th><th>Learners</th><th>Avg. Progress</th><th>Completion</th></tr></thead>
+            <tbody id="topCoursesBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card panel">
+        <h3>Learners Needing Attention</h3>
+        <div class="sub">Lowest overall progress</div>
+        <div class="table-wrap" style="border:none">
+          <table>
+            <thead><tr><th>Learner</th><th>Progress</th></tr></thead>
+            <tbody id="atRiskBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TAB 2: USERS ================= -->
+  <section id="tab-users" class="hidden">
+
+    <!-- LIST VIEW -->
+    <div id="userListView">
+      <div class="section-title">User-wise Progress Report</div>
+      <div class="section-sub">Users sorted by most recently enrolled. Click a user to drill into details.</div>
+
+      <div class="toolbar">
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="userSearch" placeholder="Search by name or email..." />
+        </div>
+        <select class="filter" id="progressFilter">
+          <option value="all">All Progress</option>
+          <option value="high">High (≥ 75%)</option>
+          <option value="mid">Medium (40–74%)</option>
+          <option value="low">Low (&lt; 40%)</option>
+        </select>
+        <button class="btn primary" id="exportBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export to Excel
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th class="sortable" data-sort="name">User Name</th>
+            <th class="sortable" data-sort="email">Email Address</th>
+            <th class="sortable" data-sort="enroll">Enrollment Date</th>
+            <th class="sortable" data-sort="assigned">Assigned</th>
+            <th class="sortable" data-sort="utilized">Utilized</th>
+            <th class="sortable" data-sort="completed">Completed</th>
+            <th class="sortable" data-sort="progress">Overall Progress</th>
+            <th>Action</th>
+          </tr></thead>
+          <tbody id="userTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <div class="info" id="pageInfo"></div>
+        <div class="pages" id="pageControls"></div>
+      </div>
+    </div>
+
+    <!-- USER DETAIL VIEW -->
+    <div id="userDetailView" class="hidden">
+      <div class="back-link" id="backToList">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        Back to user list
+      </div>
+
+      <div class="card user-header">
+        <div class="avatar" id="duAvatar"></div>
+        <div>
+          <h2 id="duName"></h2>
+          <div class="meta" id="duMeta"></div>
+        </div>
+        <div class="right">
+          <div class="big" id="duOverall"></div>
+          <small>Overall Progress</small>
+        </div>
+      </div>
+
+      <!-- PANE A: radials + course list -->
+      <div id="courseListPane">
+        <div class="section-title" style="font-size:16px;margin-bottom:14px">Overall Progress by Product Type</div>
+        <div class="grid radial-grid" id="radialGrid"></div>
+
+        <div class="section-title" style="font-size:16px;margin-bottom:4px">Course-wise Breakdown</div>
+        <div class="section-sub">One row per enrolled course. Open a course to see its practice tests, videos, labs and sandboxes.</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Course Name</th>
+              <th>Enrolled Date</th>
+              <th>Last Accessed Date</th>
+              <th>Progress</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr></thead>
+            <tbody id="courseTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PANE B: course detail (product-type sections) -->
+      <div id="courseDetailPane" class="hidden">
+        <div class="crumbs" id="courseCrumbs"></div>
+        <div class="card course-header">
+          <div class="ch-main">
+            <span class="cat-pill" id="cdCat"></span>
+            <h2 id="cdName"></h2>
+            <div class="meta" id="cdMeta"></div>
+          </div>
+          <div class="ch-prog">
+            <div class="ch-ring"><canvas id="cdRing"></canvas><div class="center" id="cdRingVal"></div></div>
+            <small style="font-size:11px;color:var(--text-muted)">Course Progress</small>
+          </div>
+        </div>
+
+        <div class="subtabs" id="courseSubtabs"></div>
+        <div class="table-wrap">
+          <table>
+            <thead id="itemHead"></thead>
+            <tbody id="itemBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<div id="modalMount"></div>
+
+<script>
+/* ============ THEME ============ */
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeText = document.getElementById('themeText');
+let theme = 'light';
+themeToggle.addEventListener('click', () => {
+  theme = theme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+  themeText.textContent = theme === 'light' ? 'Dark' : 'Light';
+  rerenderCharts();
+});
+function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+/* ============ PRODUCT META ============ */
+const PRODUCTS = {
+  'Practice Test': { key:'pt', color:'--accent-pt', label:'Practice Tests', completable:true },
+  'Video Course':  { key:'video', color:'--accent-video', label:'Video Courses', completable:true },
+  'Lab':           { key:'lab', color:'--accent-lab', label:'Labs', completable:true },
+  'Sandbox':       { key:'sandbox', color:'--accent-sandbox', label:'Sandboxes', completable:false }
+};
+const TYPE_ORDER = ['Practice Test','Video Course','Lab','Sandbox'];
+
+/* ============ COURSE CATALOG ============ */
+const COURSE_DEFS = [
+  { name:'AWS Certified Solutions Architect – Associate', cat:'Cloud',
+    pt:['SAA Domain 1 Quiz','SAA Domain 2 Quiz','SAA Full Mock Exam 1','SAA Full Mock Exam 2'],
+    video:['Compute & EC2','Storage & S3','Networking & VPC','Databases & RDS'],
+    lab:['Launch an EC2 Instance','Configure a Custom VPC','Host a Static Site on S3'],
+    sandbox:['AWS Console Sandbox'] },
+  { name:'Certified Kubernetes Administrator (CKA)', cat:'DevOps',
+    pt:['CKA Core Concepts Quiz','CKA Scheduling Quiz','CKA Full Mock Exam'],
+    video:['Cluster Architecture','Workloads & Scheduling','Services & Networking','Storage'],
+    lab:['Bootstrap a Cluster','Deploy a Pod & Service','Configure Persistent Volumes'],
+    sandbox:['Kubernetes Playground'] },
+  { name:'Microsoft Azure Fundamentals (AZ-900)', cat:'Cloud',
+    pt:['AZ-900 Concepts Quiz','AZ-900 Full Practice Test'],
+    video:['Cloud Concepts','Core Azure Services','Security & Compliance'],
+    lab:['Create a Virtual Machine','Set up a Resource Group'],
+    sandbox:['Azure Portal Sandbox'] },
+  { name:'DevOps CI/CD with GitHub Actions', cat:'DevOps',
+    pt:['CI/CD Fundamentals Quiz','Pipelines & Secrets Quiz'],
+    video:['Intro to CI/CD','Building Workflows','Deployments & Environments'],
+    lab:['Build a CI Pipeline','Automate a Release'],
+    sandbox:['Linux Terminal Sandbox'] },
+  { name:'Python for Data Science', cat:'Data',
+    pt:['Python Basics Quiz','Pandas & NumPy Quiz','Data Viz Quiz'],
+    video:['Python Foundations','Working with Pandas','Visualization with Matplotlib','Intro to ML'],
+    lab:['Clean a Dataset','Build a Regression Model'],
+    sandbox:['Jupyter Sandbox'] },
+  { name:'CompTIA Security+ (SY0-701)', cat:'Security',
+    pt:['Threats & Attacks Quiz','Cryptography Quiz','Security+ Full Mock Exam'],
+    video:['Security Fundamentals','Network Security','Identity & Access'],
+    lab:['Configure a Firewall Rule','Harden a Linux Host'],
+    sandbox:['Security Lab Sandbox'] },
+  { name:'React Front-End Developer', cat:'Web',
+    pt:['React Basics Quiz','Hooks & State Quiz'],
+    video:['JSX & Components','State & Props','Hooks Deep Dive','Routing'],
+    lab:['Build a To-Do App','Create a Custom Hook'],
+    sandbox:['CodeSandbox Playground'] },
+  { name:'Terraform Associate (003)', cat:'Cloud',
+    pt:['Terraform Basics Quiz','State & Modules Quiz'],
+    video:['Infrastructure as Code','Providers & Resources','State Management'],
+    lab:['Provision a VM with Terraform','Use Remote State'],
+    sandbox:['Terraform Sandbox'] }
+];
+
+/* ============ HELPERS ============ */
+function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function chance(p){ return Math.random()<p; }
+function dateStr(daysAgo){ const d=new Date('2026-06-21'); d.setDate(d.getDate()-Math.max(0,daysAgo)); return d.toISOString().slice(0,10); }
+function initials(n){ return n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(); }
+const avatarColors = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6','#ef4444','#14b8a6'];
+const firstNames = ['Aarav','Priya','Daniel','Sofia','Liam','Mei','Carlos','Ananya','Noah','Fatima','Ethan','Yuki','Omar','Grace','Ravi','Elena','Tom','Nadia','Jack','Lina','Hiro','Zara','Ben','Maya'];
+const lastNames = ['Sharma','Patel','Reed','Garcia','Chen','Okafor','Singh','Muller','Tanaka','Hassan','Brown','Kim','Lopez','Nguyen','Ali','Rossi','Cohen','Dubois','Park','Khan'];
+
+/* ---- build per-item objects with activity logs ---- */
+function buildPT(name, enrollOffset){
+  const accessed = chance(0.82);
+  const attempts = accessed ? rand(1,5) : 0;
+  const acts = [];
+  let best = 0, latest = 0, passed = false;
+  for(let i=1;i<=attempts;i++){
+    const score = rand(40,98);
+    best = Math.max(best, score);
+    latest = score;
+    const result = score>=70 ? 'Pass' : 'Fail';
+    if(result==='Pass') passed = true;
+    acts.push({ '#':i, Date: dateStr(rand(0,enrollOffset)), 'Score':score+'%', 'Result':result, 'Time Spent': rand(18,55)+' min' });
+  }
+  acts.sort((a,b)=> a.Date<b.Date?-1:1).forEach((a,i)=>a['#']=i+1);
+  const status = passed ? 'Passed' : (accessed ? 'Failed' : 'Not Attempted');
+  const progress = passed ? 100 : (accessed ? Math.round(best) : 0);
+  return { type:'Practice Test', name, accessed, lastAccessed: accessed?dateStr(rand(0,enrollOffset)):'—',
+    status, passPct: accessed?best:0, attempts, latest, progress, activities: acts };
+}
+function buildVideo(name, enrollOffset){
+  const total = rand(6,16);
+  const accessed = chance(0.85);
+  const done = accessed ? rand(0,total) : 0;
+  const progress = Math.round(done/total*100);
+  const status = progress>=100 ? 'Completed' : (accessed ? 'In Progress' : 'Not Started');
+  const acts = [];
+  let cum = 0;
+  const sessions = accessed ? rand(1,5) : 0;
+  for(let i=1;i<=sessions;i++){
+    const watched = Math.min(rand(1,4), done-cum); if(watched<=0) break; cum += watched;
+    acts.push({ '#':i, Date: dateStr(rand(0,enrollOffset)), 'Modules Watched':watched, 'Watch Time':rand(20,90)+' min', 'Progress After': Math.round(cum/total*100)+'%' });
+  }
+  return { type:'Video Course', name, accessed, lastAccessed: accessed?dateStr(rand(0,enrollOffset)):'—',
+    status, progress, modulesTotal: total, modulesDone: done, activities: acts };
+}
+function buildLab(name, enrollOffset){
+  const accessed = chance(0.8);
+  const attempts = accessed ? rand(1,6) : 0;
+  const acts = []; let success = 0, validated=false;
+  for(let i=1;i<=attempts;i++){
+    const ok = chance(0.45);
+    if(ok){ success++; validated = true; }
+    acts.push({ '#':i, Date: dateStr(rand(0,enrollOffset)), 'Result': ok?'Validated':'Failed', 'Duration': rand(10,60)+' min' });
+  }
+  const progress = validated ? 100 : (accessed ? rand(20,80) : 0);
+  const status = validated ? 'Validated' : (accessed ? 'In Progress' : 'Not Started');
+  return { type:'Lab', name, accessed, lastAccessed: accessed?dateStr(rand(0,enrollOffset)):'—',
+    status, progress, attempts, successful: success, activities: acts };
+}
+function buildSandbox(name, enrollOffset){
+  const accessed = chance(0.7);
+  const launches = accessed ? rand(1,18) : 0;
+  const acts = []; let totalMin = 0;
+  for(let i=1;i<=Math.min(launches,6);i++){
+    const dur = rand(8,75); totalMin += dur;
+    acts.push({ '#':i, Date: dateStr(rand(0,enrollOffset)), 'Duration': dur+' min', 'Actions': rand(5,60) });
+  }
+  const progress = accessed ? rand(25,100) : 0; // utilization only
+  const status = accessed ? 'Active' : 'Not Started';
+  return { type:'Sandbox', name, accessed, lastAccessed: accessed?dateStr(rand(0,enrollOffset)):'—',
+    status, progress, launches, usageTime: (Math.floor(totalMin/60))+'h '+(totalMin%60)+'m', activities: acts };
+}
+
+function buildCourseInstance(def, enrollOffset){
+  const items = {
+    'Practice Test': def.pt.map(n=>buildPT(n, enrollOffset)),
+    'Video Course': def.video.map(n=>buildVideo(n, enrollOffset)),
+    'Lab': def.lab.map(n=>buildLab(n, enrollOffset)),
+    'Sandbox': def.sandbox.map(n=>buildSandbox(n, enrollOffset))
+  };
+  // course progress = avg progress across completable items
+  const completable = [...items['Practice Test'], ...items['Video Course'], ...items['Lab']];
+  const progress = completable.length ? Math.round(completable.reduce((s,i)=>s+i.progress,0)/completable.length) : 0;
+  const all = [].concat(...Object.values(items));
+  const accessedDates = all.filter(i=>i.accessed && i.lastAccessed!=='—').map(i=>i.lastAccessed).sort();
+  const lastAccessed = accessedDates.length ? accessedDates[accessedDates.length-1] : '—';
+  const status = progress>=100 ? 'Completed' : (lastAccessed!=='—' ? 'In Progress' : 'Not Started');
+  const enrolled = dateStr(enrollOffset + rand(0,4));
+  return { name:def.name, cat:def.cat, enrolled, lastAccessed, progress, status, items };
+}
+
+/* ============ BUILD USERS ============ */
+function buildUser(i){
+  const fn = firstNames[i % firstNames.length];
+  const ln = lastNames[(i*3) % lastNames.length];
+  const name = fn + ' ' + ln;
+  const email = (fn+'.'+ln).toLowerCase() + '@acme.com';
+  const enrollOffset = i*4 + rand(0,3);
+  const enrolled = dateStr(enrollOffset);
+  // enroll in 2-4 courses
+  const defs = [...COURSE_DEFS].sort(()=>Math.random()-0.5).slice(0, rand(2,4));
+  const courses = defs.map(d=>buildCourseInstance(d, enrollOffset));
+
+  // aggregate items per product type across courses
+  const cats = {};
+  TYPE_ORDER.forEach(t=>{
+    const list = [].concat(...courses.map(c=>c.items[t]));
+    const assigned = list.length;
+    const utilized = list.filter(x=>x.accessed).length;
+    const completed = PRODUCTS[t].completable ? list.filter(x=>x.progress>=100).length : 0;
+    const progress = PRODUCTS[t].completable
+      ? (assigned? Math.round(completed/assigned*100):0)
+      : (assigned? Math.round(utilized/assigned*100):0);
+    cats[t] = { assigned, utilized, completed, progress };
+  });
+
+  const allItems = [].concat(...courses.map(c=>[].concat(...Object.values(c.items))));
+  const assigned = allItems.length;
+  const utilized = allItems.filter(x=>x.accessed).length;
+  // recency: most recent access across all items (days ago)
+  const TODAY = new Date('2026-06-21');
+  const accessDates = allItems.filter(x=>x.accessed && x.lastAccessed!=='—').map(x=>x.lastAccessed);
+  let lastActiveDays = 999;
+  if(accessDates.length){ const mx = accessDates.sort()[accessDates.length-1];
+    lastActiveDays = Math.round((TODAY - new Date(mx))/86400000); }
+  // ~28% of learners have gone dormant (no recent activity)
+  if(accessDates.length && chance(0.28)) lastActiveDays = rand(15,80);
+  const completableItems = allItems.filter(x=>PRODUCTS[x.type].completable);
+  const completed = completableItems.filter(x=>x.progress>=100).length;
+  const overall = completableItems.length ? Math.round(completed/completableItems.length*100) : 0;
+
+  return { id:i, name, email, enrolled, enrollOffset, courses, cats, lastActiveDays,
+    assigned, utilized, completed, overall, color: avatarColors[i%avatarColors.length] };
+}
+
+const USERS = Array.from({length: 24}, (_,i)=>buildUser(i)).sort((a,b)=> a.enrollOffset - b.enrollOffset);
+
+/* ============ ORG AGGREGATES ============ */
+const ORG = (()=>{
+  const byType = {}; TYPE_ORDER.forEach(t=> byType[t] = {assigned:0,utilized:0,completed:0});
+  let assigned=0, utilized=0, completed=0, completableAssigned=0;
+  USERS.forEach(u=> u.courses.forEach(c=> TYPE_ORDER.forEach(t=> c.items[t].forEach(it=>{
+    byType[t].assigned++; assigned++;
+    if(it.accessed){ byType[t].utilized++; utilized++; }
+    if(PRODUCTS[t].completable){ completableAssigned++; if(it.progress>=100){ byType[t].completed++; completed++; } }
+  }))));
+  const active = USERS.filter(u=>u.lastActiveDays<=14).length;
+  const avgProgress = Math.round(USERS.reduce((s,u)=>s+u.overall,0)/USERS.length);
+  return { byType, assigned, utilized, completed, completableAssigned, active,
+    utilPct: Math.round(utilized/assigned*100),
+    compPct: Math.round(completed/completableAssigned*100),
+    activePct: Math.round(active/USERS.length*100), avgProgress };
+})();
+
+/* org course aggregates (by course name) */
+const COURSE_AGG = (()=>{
+  const map = {};
+  USERS.forEach(u=> u.courses.forEach(c=>{
+    if(!map[c.name]) map[c.name] = { name:c.name, cat:c.cat, learners:0, progSum:0, completed:0 };
+    map[c.name].learners++; map[c.name].progSum += c.progress; if(c.progress>=100) map[c.name].completed++;
+  }));
+  return Object.values(map).map(m=>({ ...m, avg: Math.round(m.progSum/m.learners),
+    compRate: Math.round(m.completed/m.learners*100) })).sort((a,b)=> b.learners-a.learners);
+})();
+
+/* ============ TAB 1 RENDER ============ */
+function initOrg(){
+  document.getElementById('orgSub').textContent =
+    USERS.length + ' learners enrolled · ' + COURSE_DEFS.length + ' courses · 4 product types · as of Jun 21, 2026';
+  document.getElementById('mActive').textContent = ORG.active + ' / ' + USERS.length;
+  document.getElementById('mActiveMeta').innerHTML = '<span class="up">'+ORG.activePct+'%</span> active in last 14 days';
+  document.getElementById('mComp').textContent = ORG.compPct + '%';
+  document.getElementById('mCompMeta').textContent = 'completable products completed';
+  document.getElementById('mCompBar').style.width = ORG.compPct + '%';
+  document.getElementById('mUtil').textContent = ORG.utilPct + '%';
+  document.getElementById('mUtilMeta').textContent = 'of assigned content accessed';
+  document.getElementById('mUtilBar').style.width = ORG.utilPct + '%';
+  document.getElementById('mAvg').textContent = ORG.avgProgress + '%';
+  document.getElementById('mAvgMeta').textContent = 'mean progress per learner';
+  document.getElementById('mAvgBar').style.width = ORG.avgProgress + '%';
+
+  const grid = document.getElementById('productGrid'); grid.innerHTML='';
+  TYPE_ORDER.forEach(type=>{
+    const meta = PRODUCTS[type]; const d = ORG.byType[type];
+    const utilPct = d.assigned? Math.round(d.utilized/d.assigned*100):0;
+    const compPct = d.assigned? Math.round(d.completed/d.assigned*100):0;
+    const ringPct = meta.completable ? compPct : utilPct;
+    const ringLabel = meta.completable ? 'Completed' : 'Utilized';
+    const el = document.createElement('div'); el.className='card pcard';
+    el.innerHTML = `
+      <div class="pcard-head">
+        <span class="dot" style="background:var(${meta.color})"></span>
+        <h3>${meta.label}</h3>
+        ${meta.completable? '' : '<span class="tag">Utilization only</span>'}
+      </div>
+      <div class="pcard-body">
+        <div class="pchart"><canvas id="pc-${meta.key}"></canvas>
+          <div class="center"><b>${ringPct}%</b><small>${ringLabel}</small></div></div>
+        <div class="pstats">
+          <div class="pstat"><div class="k">Assigned</div><div class="v">${d.assigned}</div></div>
+          <div class="pstat"><div class="k">Utilized</div><div class="v">${d.utilized}</div></div>
+          <div class="pstat"><div class="k">Utilization %</div><div class="v">${utilPct}%</div></div>
+          ${meta.completable
+            ? `<div class="pstat"><div class="k">Completed</div><div class="v">${d.completed}</div></div>`
+            : `<div class="pstat"><div class="k">Completed</div><div class="v" style="color:var(--text-soft)">N/A</div></div>`}
+          ${meta.completable
+            ? `<div class="pstat" style="grid-column:span 2"><div class="k">Completion %</div><div class="v">${compPct}%</div></div>`
+            : `<div class="pstat" style="grid-column:span 2"><div class="k">Completion %</div><div class="v" style="color:var(--text-soft)">Excluded</div></div>`}
+        </div>
+      </div>`;
+    grid.appendChild(el);
+  });
+  TYPE_ORDER.forEach(type=>{
+    const meta = PRODUCTS[type]; const d = ORG.byType[type];
+    const utilPct = d.assigned? Math.round(d.utilized/d.assigned*100):0;
+    const compPct = d.assigned? Math.round(d.completed/d.assigned*100):0;
+    makeDoughnut('pc-'+meta.key, meta.completable?compPct:utilPct, cssVar(meta.color), 11);
+  });
+
+  // top courses
+  const tc = document.getElementById('topCoursesBody'); tc.innerHTML='';
+  COURSE_AGG.slice(0,6).forEach(c=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td style="font-weight:600;white-space:normal;max-width:240px">${c.name}</td>
+      <td>${c.learners}</td>
+      <td><div class="mini-bar"><div class="track"><span style="width:${c.avg}%;background:${progressColor(c.avg)}"></span></div><b>${c.avg}%</b></div></td>
+      <td>${c.compRate}%</td>`;
+    tc.appendChild(tr);
+  });
+  // at risk
+  const ar = document.getElementById('atRiskBody'); ar.innerHTML='';
+  [...USERS].sort((a,b)=>a.overall-b.overall).slice(0,6).forEach(u=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td><div class="user-cell"><div class="avatar" style="background:${u.color};width:28px;height:28px;font-size:11px">${initials(u.name)}</div><span class="nm">${u.name}</span></div></td>
+      <td><span class="badge ${u.overall>=40?'progress':'failed'}">${u.overall}%</span></td>`;
+    ar.appendChild(tr);
+  });
+}
+
+/* ============ CHARTS ============ */
+const chartRegistry = {};
+function makeDoughnut(canvasId, pct, color, cut){
+  const ctx = document.getElementById(canvasId); if(!ctx) return;
+  if(chartRegistry[canvasId]) chartRegistry[canvasId].destroy();
+  chartRegistry[canvasId] = new Chart(ctx, {
+    type:'doughnut',
+    data:{ datasets:[{ data:[pct,Math.max(0,100-pct)], backgroundColor:[color, cssVar('--surface-2')], borderWidth:0 }] },
+    options:{ cutout:(cut||14)+'px', responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{display:false}, tooltip:{enabled:false} } }
+  });
+}
+function buildBarChart(){
+  const ctx = document.getElementById('barChart'); if(!ctx) return;
+  if(chartRegistry.bar) chartRegistry.bar.destroy();
+  const labels = TYPE_ORDER.map(t=>PRODUCTS[t].label);
+  const util = TYPE_ORDER.map(t=>{ const d=ORG.byType[t]; return d.assigned?Math.round(d.utilized/d.assigned*100):0; });
+  const comp = TYPE_ORDER.map(t=>{ const d=ORG.byType[t]; return PRODUCTS[t].completable&&d.assigned?Math.round(d.completed/d.assigned*100):0; });
+  chartRegistry.bar = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'Utilization %', data:util, backgroundColor: cssVar('--accent-video'), borderRadius:5 },
+      { label:'Completion %', data:comp, backgroundColor: cssVar('--success'), borderRadius:5 } ] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted')} },
+               y:{ grid:{color:cssVar('--border')}, ticks:{color:cssVar('--text-muted'), callback:v=>v+'%'}, beginAtZero:true, max:100 } },
+      plugins:{ legend:{ position:'top', labels:{color:cssVar('--text-muted'), usePointStyle:true, padding:16} } } }
+  });
+}
+function buildDistChart(){
+  const ctx = document.getElementById('distChart'); if(!ctx) return;
+  if(chartRegistry.dist) chartRegistry.dist.destroy();
+  const bands = [0,0,0,0,0]; // 0-19,20-39,40-59,60-79,80-100
+  USERS.forEach(u=>{ const b = Math.min(4, Math.floor(u.overall/20)); bands[b]++; });
+  chartRegistry.dist = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:['0–19%','20–39%','40–59%','60–79%','80–100%'],
+      datasets:[{ label:'Learners', data:bands,
+        backgroundColor:[cssVar('--danger'),'#f97316',cssVar('--warning'),'#84cc16',cssVar('--success')], borderRadius:6 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted')} },
+               y:{ grid:{color:cssVar('--border')}, ticks:{color:cssVar('--text-muted'), precision:0}, beginAtZero:true } },
+      plugins:{ legend:{display:false} } }
+  });
+}
+function rerenderCharts(){
+  initOrg(); buildBarChart(); buildDistChart();
+  if(currentUser && !document.getElementById('userDetailView').classList.contains('hidden')){
+    renderRadials(currentUser);
+    if(currentCourse && !document.getElementById('courseDetailPane').classList.contains('hidden'))
+      makeDoughnut('cdRing', currentCourse.progress, progressColor(currentCourse.progress), 13);
+  }
+}
+
+/* ============ TAB 2 LIST ============ */
+let filtered = [...USERS];
+let sortKey = 'enroll', sortDir = 1, page = 1; const PAGE_SIZE = 8;
+function progressColor(p){ return p>=75? cssVar('--success') : p>=40? cssVar('--warning') : cssVar('--danger'); }
+function applyFilters(){
+  const q = document.getElementById('userSearch').value.toLowerCase().trim();
+  const pf = document.getElementById('progressFilter').value;
+  filtered = USERS.filter(u=>{
+    const mq = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+    const mp = pf==='all' || (pf==='high'&&u.overall>=75) || (pf==='mid'&&u.overall>=40&&u.overall<75) || (pf==='low'&&u.overall<40);
+    return mq && mp;
+  });
+  sortData(); page=1; renderTable();
+}
+function sortData(){
+  const km = { name:u=>u.name, email:u=>u.email, enroll:u=>u.enrollOffset, assigned:u=>u.assigned,
+    utilized:u=>u.utilized, completed:u=>u.completed, progress:u=>u.overall };
+  const f = km[sortKey];
+  filtered.sort((a,b)=>{ const va=f(a), vb=f(b); return typeof va==='string'? va.localeCompare(vb)*sortDir : (va-vb)*sortDir; });
+}
+function renderTable(){
+  const body = document.getElementById('userTableBody');
+  const start = (page-1)*PAGE_SIZE; const rows = filtered.slice(start, start+PAGE_SIZE);
+  body.innerHTML='';
+  if(rows.length===0) body.innerHTML = '<tr><td colspan="8"><div class="empty">No users match your search or filters.</div></td></tr>';
+  rows.forEach(u=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td><div class="user-cell"><div class="avatar" style="background:${u.color}">${initials(u.name)}</div><span class="nm">${u.name}</span></div></td>
+      <td style="color:var(--text-muted)">${u.email}</td>
+      <td>${u.enrolled}</td>
+      <td>${u.assigned}</td>
+      <td>${u.utilized}</td>
+      <td>${u.completed}</td>
+      <td><div class="mini-bar"><div class="track"><span style="width:${u.overall}%;background:${progressColor(u.overall)}"></span></div><b>${u.overall}%</b></div></td>
+      <td><button class="link-btn" data-uid="${u.id}">View Details ›</button></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('.link-btn').forEach(b=> b.addEventListener('click', ()=> openUser(+b.dataset.uid)));
+  const total = filtered.length, showFrom = total===0?0:start+1, showTo = Math.min(start+PAGE_SIZE,total);
+  document.getElementById('pageInfo').textContent = `Showing ${showFrom}–${showTo} of ${total} users`;
+  renderPager(total);
+}
+function renderPager(total){
+  const pages = Math.ceil(total/PAGE_SIZE)||1; const ctn = document.getElementById('pageControls'); ctn.innerHTML='';
+  const mk=(label,p,dis,act)=>{ const b=document.createElement('button'); b.textContent=label;
+    if(dis)b.disabled=true; if(act)b.classList.add('active'); b.addEventListener('click',()=>{page=p;renderTable();}); ctn.appendChild(b); };
+  mk('‹', Math.max(1,page-1), page===1);
+  for(let i=1;i<=pages;i++){ if(pages>7 && i>2 && i<pages-1 && Math.abs(i-page)>1){ if(i===3||i===pages-2){ const s=document.createElement('button'); s.textContent='…'; s.disabled=true; ctn.appendChild(s);} continue; } mk(i,i,false,i===page); }
+  mk('›', Math.min(pages,page+1), page===pages);
+}
+document.getElementById('userSearch').addEventListener('input', applyFilters);
+document.getElementById('progressFilter').addEventListener('change', applyFilters);
+document.querySelectorAll('thead th.sortable').forEach(th=> th.addEventListener('click', ()=>{
+  const k=th.dataset.sort; if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=1; } sortData(); renderTable(); }));
+
+/* ============ EXPORT ============ */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const headers = ['User Name','Email Address','Enrollment Date','Assigned Products','Utilized Products','Completed Products','Overall Progress %'];
+  const rows = filtered.map(u=>[u.name,u.email,u.enrolled,u.assigned,u.utilized,u.completed,u.overall+'%']);
+  let xml = '<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>'
+    + '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
+    + '<Worksheet ss:Name="User Progress"><Table>';
+  const row = cells => '<Row>'+cells.map(c=>`<Cell><Data ss:Type="String">${String(c).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</Data></Cell>`).join('')+'</Row>';
+  xml += row(headers); rows.forEach(r=> xml += row(r)); xml += '</Table></Worksheet></Workbook>';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([xml],{type:'application/vnd.ms-excel'}));
+  a.download = 'user-progress-report.xls'; a.click(); URL.revokeObjectURL(a.href);
+});
+
+/* ============ USER DETAIL ============ */
+let currentUser = null, currentCourse = null, currentSubtype = 'Practice Test';
+function openUser(id){
+  currentUser = USERS.find(u=>u.id===id);
+  document.getElementById('userListView').classList.add('hidden');
+  document.getElementById('userDetailView').classList.remove('hidden');
+  showCourseList();
+  window.scrollTo({top:0,behavior:'smooth'});
+  const u = currentUser;
+  document.getElementById('duAvatar').textContent = initials(u.name);
+  document.getElementById('duAvatar').style.background = u.color;
+  document.getElementById('duName').textContent = u.name;
+  document.getElementById('duMeta').textContent = `${u.email} · Enrolled ${u.enrolled} · ${u.courses.length} courses · ${u.assigned} products`;
+  document.getElementById('duOverall').textContent = u.overall + '%';
+  document.getElementById('duOverall').style.color = progressColor(u.overall);
+  renderRadials(u);
+  renderCourseList(u);
+}
+document.getElementById('backToList').addEventListener('click', ()=>{
+  document.getElementById('userDetailView').classList.add('hidden');
+  document.getElementById('userListView').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+function showCourseList(){
+  document.getElementById('courseListPane').classList.remove('hidden');
+  document.getElementById('courseDetailPane').classList.add('hidden');
+  currentCourse = null;
+}
+function renderRadials(u){
+  const grid = document.getElementById('radialGrid'); grid.innerHTML='';
+  TYPE_ORDER.forEach(type=>{
+    const meta=PRODUCTS[type]; const c=u.cats[type];
+    let line2;
+    if(type==='Practice Test') line2 = `<span>Passed <b>${c.completed}</b></span><span>Assigned <b>${c.assigned}</b></span>`;
+    else if(type==='Sandbox') line2 = `<span>Utilized <b>${c.utilized}</b></span><span>Assigned <b>${c.assigned}</b></span>`;
+    else line2 = `<span>Completed <b>${c.completed}</b></span><span>Assigned <b>${c.assigned}</b></span>`;
+    const el=document.createElement('div'); el.className='card radial-card';
+    el.innerHTML = `
+      <div class="rc-head"><span class="dot" style="background:var(${meta.color})"></span><h4>${meta.label}</h4></div>
+      <div class="radial-wrap"><canvas id="rad-${meta.key}"></canvas><div class="center"><b>${c.progress}%</b></div></div>
+      <div class="radial-detail">${line2}</div>`;
+    grid.appendChild(el);
+  });
+  TYPE_ORDER.forEach(type=> makeDoughnut('rad-'+PRODUCTS[type].key, u.cats[type].progress, cssVar(PRODUCTS[type].color), 17));
+}
+function renderCourseList(u){
+  const body = document.getElementById('courseTableBody'); body.innerHTML='';
+  u.courses.forEach((c,idx)=>{
+    const badgeClass = c.status==='Completed'?'completed': c.status==='In Progress'?'progress':'notstarted';
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600;white-space:normal;max-width:300px">${c.name}<div style="font-size:11px;color:var(--text-soft);font-weight:500;margin-top:2px">${c.cat}</div></td>
+      <td>${c.enrolled}</td>
+      <td>${c.lastAccessed}</td>
+      <td><div class="mini-bar"><div class="track"><span style="width:${c.progress}%;background:${progressColor(c.progress)}"></span></div><b>${c.progress}%</b></div></td>
+      <td><span class="badge ${badgeClass}">${c.status}</span></td>
+      <td><button class="link-btn" data-cidx="${idx}">View ›</button></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('.link-btn').forEach(b=> b.addEventListener('click', ()=> openCourse(+b.dataset.cidx)));
+}
+
+/* ============ COURSE DETAIL ============ */
+function openCourse(idx){
+  currentCourse = currentUser.courses[idx];
+  document.getElementById('courseListPane').classList.add('hidden');
+  document.getElementById('courseDetailPane').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+  const c = currentCourse;
+  document.getElementById('courseCrumbs').innerHTML =
+    `<span class="c" id="crumbUser">${currentUser.name}</span> › <span class="c" id="crumbCourses">Courses</span> › ${c.name}`;
+  document.getElementById('crumbUser').addEventListener('click', showCourseList);
+  document.getElementById('crumbCourses').addEventListener('click', showCourseList);
+  document.getElementById('cdCat').textContent = c.cat;
+  document.getElementById('cdName').textContent = c.name;
+  document.getElementById('cdMeta').textContent = `Enrolled ${c.enrolled} · Last accessed ${c.lastAccessed} · Status: ${c.status}`;
+  document.getElementById('cdRingVal').textContent = c.progress + '%';
+  makeDoughnut('cdRing', c.progress, progressColor(c.progress), 13);
+
+  // subtabs
+  const st = document.getElementById('courseSubtabs'); st.innerHTML='';
+  // default to first type that has items
+  currentSubtype = TYPE_ORDER.find(t=>c.items[t].length>0) || 'Practice Test';
+  TYPE_ORDER.forEach(type=>{
+    const meta=PRODUCTS[type]; const n=c.items[type].length;
+    const el=document.createElement('div');
+    el.className='subtab'+(type===currentSubtype?' active':'');
+    if(type===currentSubtype) el.style.background = cssVar(meta.color), el.style.borderColor = cssVar(meta.color);
+    el.innerHTML = `<span class="dot" style="background:${type===currentSubtype?'#fff':'var('+meta.color+')'}"></span>${meta.label}<span class="count">${n}</span>`;
+    el.addEventListener('click', ()=>{ currentSubtype=type; openCourse(idx); });
+    st.appendChild(el);
+  });
+  renderItems(c, currentSubtype);
+}
+function renderItems(course, type){
+  const head = document.getElementById('itemHead'); const body = document.getElementById('itemBody');
+  const items = course.items[type];
+  let cols;
+  if(type==='Practice Test') cols = ['Quiz Name','Last Accessed Date','Status','Pass Percentage','Action'];
+  else if(type==='Video Course') cols = ['Video Section','Last Accessed Date','Status','Progress','Action'];
+  else if(type==='Lab') cols = ['Lab Name','Last Accessed Date','Status','Attempts','Action'];
+  else cols = ['Sandbox Name','Last Accessed Date','Status','Launches','Usage Time','Action'];
+  head.innerHTML = '<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  body.innerHTML='';
+  if(items.length===0){ body.innerHTML=`<tr><td colspan="${cols.length}"><div class="empty">No ${PRODUCTS[type].label.toLowerCase()} in this course.</div></td></tr>`; return; }
+  items.forEach((it,i)=>{
+    const sc = statusClass(it.status);
+    let mid;
+    if(type==='Practice Test') mid = `<td><span class="badge ${sc}">${it.status}</span></td><td><b>${it.passPct}%</b></td>`;
+    else if(type==='Video Course') mid = `<td><span class="badge ${sc}">${it.status}</span></td><td><div class="mini-bar"><div class="track"><span style="width:${it.progress}%;background:${progressColor(it.progress)}"></span></div><b>${it.progress}%</b></div></td>`;
+    else if(type==='Lab') mid = `<td><span class="badge ${sc}">${it.status}</span></td><td>${it.attempts}</td>`;
+    else mid = `<td><span class="badge ${sc}">${it.status}</span></td><td>${it.launches}</td><td>${it.usageTime}</td>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td style="font-weight:600">${it.name}</td><td>${it.lastAccessed}</td>${mid}
+      <td><button class="link-btn" data-i="${i}">View ›</button></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('.link-btn').forEach(b=> b.addEventListener('click', ()=> openActivity(course.items[type][+b.dataset.i])));
+}
+function statusClass(s){
+  return ({'Completed':'completed','Passed':'passed','Validated':'validated','In Progress':'progress',
+    'Active':'active','Failed':'failed','Not Started':'notstarted','Not Attempted':'na'})[s] || 'notstarted';
+}
+
+/* ============ ACTIVITY MODAL ============ */
+function openActivity(item){
+  const meta = PRODUCTS[item.type];
+  let summary='', actCols=[];
+  if(item.type==='Practice Test'){
+    summary = chips([['Attempts',item.attempts],['Best Score',item.passPct+'%'],['Latest Score',(item.latest||0)+'%'],['Status',item.status]]);
+    actCols = ['#','Date','Score','Result','Time Spent'];
+  } else if(item.type==='Video Course'){
+    summary = chips([['Modules',item.modulesDone+' / '+item.modulesTotal],['Completion',item.progress+'%'],['Status',item.status]]);
+    actCols = ['#','Date','Modules Watched','Watch Time','Progress After'];
+  } else if(item.type==='Lab'){
+    summary = chips([['Attempts',item.attempts],['Successful',item.successful],['Status',item.status]]);
+    actCols = ['#','Date','Result','Duration'];
+  } else {
+    summary = chips([['Launches',item.launches],['Usage Time',item.usageTime],['Status',item.status]]);
+    actCols = ['#','Date','Duration','Actions'];
+  }
+  let table;
+  if(item.activities.length===0){ table = '<div class="empty">No activity recorded yet.</div>'; }
+  else {
+    table = '<table style="font-size:13px"><thead><tr>'+actCols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>'
+      + item.activities.map(a=> '<tr>'+actCols.map(c=>{
+          let v=a[c];
+          if(c==='Result') v = `<span class="badge ${v==='Pass'||v==='Validated'?'passed':'failed'}">${v}</span>`;
+          return `<td>${v}</td>`; }).join('')+'</tr>').join('')
+      + '</tbody></table>';
+  }
+  const mount = document.getElementById('modalMount');
+  mount.innerHTML = `
+    <div class="modal-overlay" id="overlay"><div class="modal">
+      <div class="modal-head">
+        <span class="tag" style="background:var(${meta.color})">${meta.label}</span>
+        <div><h3>${item.name}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${currentUser.name} · ${currentCourse.name}</div></div>
+        <button class="x" id="modalClose">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="summary-row">${summary}</div>
+        <div class="act-title">User Activity Log</div>
+        <div class="table-wrap" style="border:none">${table}</div>
+      </div>
+    </div></div>`;
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('overlay').addEventListener('click', e=>{ if(e.target.id==='overlay') closeModal(); });
+}
+function chips(arr){ return arr.map(([k,v])=>`<div class="chip"><div class="k">${k}</div><div class="v">${v}</div></div>`).join(''); }
+function closeModal(){ document.getElementById('modalMount').innerHTML=''; }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+/* ============ TAB SWITCH ============ */
+document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  const which=t.dataset.tab;
+  document.getElementById('tab-org').classList.toggle('hidden', which!=='org');
+  document.getElementById('tab-users').classList.toggle('hidden', which!=='users');
+}));
+
+/* ============ INIT ============ */
+initOrg(); buildBarChart(); buildDistChart(); applyFilters();
+</script>
+</body>
+</html>
