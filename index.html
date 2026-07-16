@@ -7,352 +7,271 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg: #f4f5f9; --surface: #ffffff; --surface-2: #f6f7fb; --border: #e7e9f0;
-  --text: #1b2a4a; --text-muted: #6b7590; --text-soft: #9aa2b8;
-  --primary: #e2542c; --primary-dark: #c8431f; --primary-soft: #fdeee8;
-  --navy: #1b2a4a;
-  --accent-pt: #7c5cd0; --accent-video: #3b6fe0; --accent-lab: #2f9e73; --accent-sandbox: #e2542c;
-  --success: #2f9e73; --warning: #d9822b; --danger: #d64545; --gold: #c98a1a;
-  --shadow: 0 1px 3px rgba(27,42,74,.06), 0 1px 2px rgba(27,42,74,.04);
-  --shadow-lg: 0 12px 34px rgba(27,42,74,.14); --radius: 16px;
+  --bg:#f4f5f9; --surface:#ffffff; --surface-2:#f6f7fb; --border:#e7e9f0;
+  --text:#1b2a4a; --text-muted:#6b7590; --text-soft:#9aa2b8;
+  --primary:#e2542c; --primary-dark:#c8431f; --primary-soft:#fdeee8; --navy:#1b2a4a;
+  --accent-pt:#7c5cd0; --accent-video:#3b6fe0; --accent-lab:#2f9e73; --accent-sandbox:#e2542c;
+  --success:#2f9e73; --warning:#d9822b; --danger:#d64545; --gold:#c98a1a;
+  --shadow:0 1px 3px rgba(27,42,74,.06),0 1px 2px rgba(27,42,74,.04);
+  --shadow-lg:0 12px 34px rgba(27,42,74,.14); --radius:16px;
 }
-[data-theme="dark"] {
-  --bg: #0f1420; --surface: #171d2b; --surface-2: #1e2536; --border: #2a3244;
-  --text: #e8ecf5; --text-muted: #9aa4bd; --text-soft: #6b7488;
-  --primary: #f0663d; --primary-dark: #e2542c; --primary-soft: #2a1d18;
-  --navy: #e8ecf5;
-  --shadow: 0 1px 3px rgba(0,0,0,.4); --shadow-lg: 0 12px 34px rgba(0,0,0,.5);
+[data-theme="dark"]{
+  --bg:#0f1420; --surface:#171d2b; --surface-2:#1e2536; --border:#2a3244;
+  --text:#e8ecf5; --text-muted:#9aa4bd; --text-soft:#6b7488;
+  --primary:#f0663d; --primary-dark:#e2542c; --primary-soft:#2a1d18; --navy:#e8ecf5;
+  --shadow:0 1px 3px rgba(0,0,0,.4); --shadow-lg:0 12px 34px rgba(0,0,0,.5);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; transition: background .25s, color .25s; }
-.app { max-width: 1340px; margin: 0 auto; padding: 0 24px 60px; }
-
-.topbar { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 24px; margin: 0 -24px 8px; background: var(--surface); border-bottom: 1px solid var(--border); }
-.brand { display: flex; align-items: center; gap: 12px; }
-.brand .logo { width: 40px; height: 40px; border-radius: 11px; background: var(--primary);
-  display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 20px; }
-.brand h1 { font-size: 17px; font-weight: 800; letter-spacing: -.2px; }
-.brand p { font-size: 12px; color: var(--text-muted); }
-.topbar-actions { display: flex; align-items: center; gap: 12px; }
-.theme-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; background: var(--surface-2);
-  border: 1px solid var(--border); border-radius: 999px; padding: 7px 14px; font-size: 13px; color: var(--text); }
-.theme-toggle:hover { border-color: var(--primary); }
-.admin-chip { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
-.admin-chip .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-soft); color: var(--primary);
-  display: grid; place-items: center; font-weight: 700; font-size: 13px; }
-
-.report-banner { display:flex; flex-wrap:wrap; gap:16px; align-items:center; padding:20px 22px; margin:18px 0 6px; }
-.report-banner .rb-main h2 { font-size:18px; font-weight:800; }
-.report-banner .rb-main p { font-size:13px; color:var(--text-muted); margin-top:3px; }
-.report-banner .rb-meta { margin-left:auto; display:flex; gap:22px; flex-wrap:wrap; }
-.report-banner .rb-meta div { font-size:12px; color:var(--text-soft); }
-.report-banner .rb-meta b { display:block; font-size:14px; color:var(--text); font-weight:700; margin-top:2px; }
-
-.tabs { display: flex; gap: 4px; margin: 16px 0 22px; border-bottom: 1px solid var(--border); }
-.tab { padding: 12px 20px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
-.tab:hover { color: var(--text); }
-.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-.section-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-.section-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
-.eyebrow { font-size: 11.5px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--text-soft); margin-bottom: 12px; }
-
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
-.grid { display: grid; gap: 18px; }
-.two { grid-template-columns: 1fr 1fr; }
-.c-13 { grid-template-columns: 1.35fr 1fr; }
-@media (max-width: 980px) { .two, .c-13 { grid-template-columns: 1fr; } }
-
-/* Org toolbar */
-.org-toolbar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:18px; }
-.org-toolbar .ot-title { font-size:18px; font-weight:800; }
-.org-toolbar .spacer { flex:1; }
-select.filter { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; color: var(--text); font-size: 14px; cursor: pointer; outline: none; }
-.btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border: 1px solid var(--border); background: var(--surface);
-  color: var(--text); border-radius: 10px; padding: 9px 16px; font-size: 14px; font-weight: 600; }
-.btn:hover { border-color: var(--primary); }
-.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-.btn.primary:hover { background: var(--primary-dark); }
-.btn.sm { padding: 7px 12px; font-size: 13px; }
-
-/* KPI stat cards (sample style) */
-.kpi-grid { grid-template-columns: repeat(6, 1fr); margin-bottom: 22px; }
-@media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(3,1fr); } }
-@media (max-width: 620px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
-.kpi { padding: 16px 18px; }
-.kpi .k { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--text-soft); }
-.kpi .v { font-size: 28px; font-weight: 800; margin-top: 8px; letter-spacing: -.5px; }
-.kpi .d { font-size: 11.5px; color: var(--text-soft); margin-top: 2px; }
-.kpi .v.red { color: var(--danger); } .kpi .v.green { color: var(--success); } .kpi .v.gold { color: var(--gold); }
-
-/* Panels */
-.panel { padding: 20px 22px; }
-.panel h3 { font-size: 15px; font-weight: 800; margin-bottom: 3px; display:flex; align-items:center; gap:8px; }
-.panel .sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-.chart-wrap { position: relative; height: 260px; }
-.chip-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
-.chip-row .chip { background: var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:8px 12px; }
-.chip-row .chip .k { font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; }
-.chip-row .chip .v { font-size:16px; font-weight:800; margin-top:1px; }
-
-/* Product cards */
-.product-grid { grid-template-columns: repeat(4, 1fr); }
-@media (max-width: 980px) { .product-grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 520px) { .product-grid { grid-template-columns: 1fr; } }
-.pcard { padding: 18px; border-top: 3px solid var(--pc-accent, var(--primary)); transition: transform .15s, box-shadow .15s; }
-.pcard:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-.client-cert-note { display:flex; align-items:center; gap:10px; background:var(--primary-soft); border:1px solid #f3c3ad; color:var(--text);
-  border-radius:12px; padding:11px 16px; margin-bottom:20px; font-size:13px; }
-.client-cert-note .ic { font-size:16px; }
-.client-cert-note b { color:var(--primary); }
-.client-cert-note .rule { margin-left:auto; font-weight:700; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:4px 12px; font-size:12.5px; }
-[data-theme="dark"] .client-cert-note { border-color:#4a2e22; }
-.count-link { color: var(--primary); font-weight: 700; cursor: pointer; border-bottom: 1px dotted var(--primary); }
-.count-link:hover { color: var(--primary-dark); }
-.rankrow.clickable { cursor: pointer; border-radius: 8px; }
-.rankrow.clickable:hover { background: var(--surface-2); }
-.pcard-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-.pcard-head .dot { width: 11px; height: 11px; border-radius: 4px; }
-.pcard-head h4 { font-size: 14px; font-weight: 700; }
-.pcard-head .tag { margin-left: auto; font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: var(--surface-2); color: var(--text-muted); }
-.pcard-body { display: flex; align-items: center; gap: 16px; }
-.pchart { width: 84px; height: 84px; flex-shrink: 0; position: relative; }
-.pchart .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
-.pchart .center b { font-size: 16px; font-weight: 800; }
-.pchart .center small { font-size: 9px; color: var(--text-muted); display: block; }
-.pstats { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
-.pstat .k { font-size: 10.5px; color: var(--text-muted); }
-.pstat .v { font-size: 14px; font-weight: 700; }
-
-/* Horizontal bar list (popular courses / team perf) */
-.hbar { margin-bottom: 13px; }
-.hbar:last-child { margin-bottom: 0; }
-.hbar .top { display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
-.hbar .top .nm { font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:78%; }
-.hbar .top .val { font-weight:700; color:var(--text-muted); }
-.hbar .track { height: 9px; border-radius: 999px; background: var(--surface-2); overflow:hidden; }
-.hbar .track > span { display:block; height:100%; border-radius:999px; background: linear-gradient(90deg,var(--primary),#f08a5d); }
-
-/* Ranked list */
-.ranklist { display:flex; flex-direction:column; gap:2px; }
-.rankrow { display:flex; align-items:center; gap:12px; padding:10px 6px; border-bottom:1px solid var(--border); }
-.rankrow:last-child { border-bottom:none; }
-.rankrow .rk { width:24px; height:24px; border-radius:8px; display:grid; place-items:center; font-size:12px; font-weight:800; background:var(--surface-2); color:var(--text-muted); flex-shrink:0; }
-.rankrow.top1 .rk { background:var(--primary); color:#fff; } .rankrow.top2 .rk { background:#f0a06d; color:#fff; } .rankrow.top3 .rk { background:#f5c39a; color:#7a3d1e; }
-.rankrow .av { width:32px; height:32px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:700; color:#fff; flex-shrink:0; }
-.rankrow .who { flex:1; min-width:0; }
-.rankrow .who .n { font-weight:600; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.rankrow .who .e { font-size:11.5px; color:var(--text-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.rankrow .score { font-weight:800; font-size:15px; }
-.rankrow .score small { font-size:10px; color:var(--text-soft); font-weight:600; display:block; text-align:right; }
-
-/* Tables */
-.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-thead th { text-align: left; padding: 12px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--text-muted);
-  background: var(--surface-2); border-bottom: 1px solid var(--border); white-space: nowrap; }
-thead th.sortable { cursor:pointer; user-select:none; } thead th.sortable:hover { color:var(--text); }
-tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: var(--surface-2); }
-.user-cell { display: flex; align-items: center; gap: 10px; }
-.user-cell .avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 11px; color: #fff; }
-.user-cell .nm { font-weight: 600; }
-.mini-bar { display: flex; align-items: center; gap: 8px; }
-.mini-bar .track { width: 76px; height: 7px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
-.mini-bar .track > span { display: block; height: 100%; border-radius: 999px; }
-.mini-bar b { font-size: 12.5px; font-variant-numeric: tabular-nums; }
-.link-btn { color: var(--primary); font-weight: 600; cursor: pointer; background: none; border: none; font-size: 13px; }
-.link-btn:hover { text-decoration: underline; }
-.badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; display: inline-block; }
-.badge.completed,.badge.passed,.badge.validated,.badge.certified,.badge.generated { background: rgba(47,158,115,.14); color: var(--success); }
-.badge.progress,.badge.active,.badge.pending { background: rgba(217,130,43,.16); color: var(--warning); }
-.badge.notstarted,.badge.na { background: rgba(107,117,144,.16); color: var(--text-muted); }
-.badge.failed { background: rgba(214,69,69,.14); color: var(--danger); }
-.rk-cell { width:26px; height:26px; border-radius:8px; display:inline-grid; place-items:center; font-weight:800; font-size:12px; background:var(--surface-2); color:var(--text-muted); }
-
-/* Need attention */
-.na-toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
-.na-toolbar input[type=email] { flex:1; min-width:200px; border:1px solid var(--border); background:var(--surface); border-radius:10px; padding:9px 12px; color:var(--text); font-size:13.5px; outline:none; }
-.reason { font-size:11.5px; }
-.reason .pill { display:inline-block; background:rgba(214,69,69,.12); color:var(--danger); border-radius:6px; padding:2px 7px; margin-right:5px; font-weight:600; }
-.reason .pill.warn { background:rgba(217,130,43,.14); color:var(--warning); }
-input[type=checkbox].cb { width:16px; height:16px; accent-color:var(--primary); cursor:pointer; }
-
-/* Timeline */
-.timeline { position:relative; padding-left: 8px; }
-.tl-row { display:flex; gap:14px; padding:11px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
-.tl-row:last-child { border-bottom:none; }
-.tl-ic { width:34px; height:34px; border-radius:10px; display:grid; place-items:center; font-size:15px; flex-shrink:0; color:#fff; }
-.tl-body { flex:1; min-width:0; }
-.tl-body .a { font-size:13.5px; } .tl-body .a b { font-weight:700; }
-.tl-body .m { font-size:11.5px; color:var(--text-soft); margin-top:2px; }
-.tl-date { font-size:12px; color:var(--text-muted); white-space:nowrap; }
-
-.pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; flex-wrap: wrap; gap: 12px; }
-.pagination .info { font-size: 13px; color: var(--text-muted); }
-.pages { display: flex; gap: 6px; }
-.pages button { min-width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
-.pages button:hover:not(:disabled) { border-color: var(--primary); }
-.pages button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-.pages button:disabled { opacity: .4; cursor: not-allowed; }
-
-/* USER report (tab 2) */
-.hidden { display: none !important; }
-.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 18px; }
-.search { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; }
-.search input { border: none; background: none; outline: none; color: var(--text); width: 100%; font-size: 14px; }
-.search svg { flex-shrink: 0; color: var(--text-soft); }
-.back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 14px; cursor: pointer; font-weight: 600; }
-.back-link:hover { color: var(--primary); }
-.crumbs { font-size: 12.5px; color: var(--text-soft); margin-bottom: 14px; }
-.crumbs span.c { color: var(--primary); cursor: pointer; font-weight: 600; }
-.crumbs span.c:hover { text-decoration: underline; }
-.user-header { display: flex; align-items: center; gap: 16px; padding: 22px; margin-bottom: 22px; flex-wrap: wrap; }
-.user-header .avatar { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 22px; color: #fff; }
-.user-header h2 { font-size: 20px; font-weight: 700; }
-.user-header .meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
-.user-header .right { margin-left: auto; display: flex; gap: 26px; }
-.user-header .right .stat { text-align: center; }
-.user-header .right .big { font-size: 28px; font-weight: 800; }
-.user-header .right small { font-size: 11.5px; color: var(--text-muted); }
-.radial-grid { grid-template-columns: repeat(4, 1fr); margin-bottom: 26px; }
-@media (max-width: 880px) { .radial-grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 480px) { .radial-grid { grid-template-columns: 1fr; } }
-.radial-card { padding: 20px; text-align: center; }
-.radial-card .rc-head { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
-.radial-card .rc-head .dot { width: 10px; height: 10px; border-radius: 3px; }
-.radial-card .rc-head h4 { font-size: 13.5px; font-weight: 700; }
-.radial-wrap { width: 126px; height: 126px; margin: 0 auto 14px; position: relative; }
-.radial-wrap .center { position: absolute; inset: 0; display: grid; place-items: center; }
-.radial-wrap .center b { font-size: 23px; font-weight: 800; }
-.radial-detail { font-size: 12px; color: var(--text-muted); display: flex; justify-content: center; gap: 14px; }
-.radial-detail span b { color: var(--text); }
-.cert-grid { grid-template-columns: repeat(2,1fr); margin-bottom: 26px; }
-@media (max-width: 760px) { .cert-grid { grid-template-columns: 1fr; } }
-.certcard { padding: 16px 18px; display: flex; align-items: center; gap: 14px; }
-.certcard .medal { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; background: linear-gradient(135deg,#fde68a,#e2542c); flex-shrink: 0; }
-.certcard .ci { flex: 1; min-width: 0; }
-.certcard .ci .cn { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.certcard .ci .cd { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-.course-header { padding: 22px; margin-bottom: 20px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
-.course-header .ch-main h2 { font-size: 19px; font-weight: 700; }
-.course-header .ch-main .meta { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-.course-header .cat-pill { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); display: inline-block; margin-bottom: 8px; }
-.course-header .ch-prog { margin-left: auto; text-align: center; }
-.ch-ring { width: 90px; height: 90px; position: relative; }
-.ch-ring .center { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; font-size: 19px; }
-.cert-panel { padding: 20px 22px; margin-bottom: 20px; }
-.cert-panel .cp-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-.cert-panel .cp-head h3 { font-size: 15px; font-weight: 700; }
-.cert-panel .cp-type { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); }
-.cert-panel .cp-status { margin-left: auto; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-.crit { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 12px; }
-.crit .c { border: 1px solid var(--border); border-radius: 11px; padding: 12px 14px; display: flex; align-items: center; gap: 11px; }
-.crit .c .ci2 { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; flex-shrink: 0; color: #fff; }
-.crit .c .lbl { font-size: 13px; font-weight: 600; }
-.crit .c .sub { font-size: 11.5px; color: var(--text-muted); }
-.subtabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-.subtab { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); font-size: 13.5px; font-weight: 600; color: var(--text-muted); }
-.subtab:hover { border-color: var(--primary); }
-.subtab.active { color: #fff; }
-.subtab .count { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,.25); }
-.subtab:not(.active) .count { background: var(--surface-2); color: var(--text-muted); }
-.subtab .dot { width: 9px; height: 9px; border-radius: 3px; }
-
-/* Modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(15,20,32,.55); z-index: 100; display: grid; place-items: center; padding: 20px; backdrop-filter: blur(2px); overflow-y:auto; }
-.modal { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-lg); width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
-.modal.wide { max-width: 720px; }
-.modal-head { display: flex; align-items: flex-start; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid var(--border); }
-.modal-head .tag { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 6px; color: #fff; }
-.modal-head h3 { font-size: 17px; font-weight: 800; }
-.modal-head .x { margin-left: auto; cursor: pointer; color: var(--text-muted); font-size: 22px; line-height: 1; background: none; border: none; }
-.modal-body { padding: 16px 24px 24px; }
-.summary-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
-.summary-row .chip { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; flex: 1; min-width: 110px; }
-.summary-row .chip .k { font-size: 11px; color: var(--text-muted); }
-.summary-row .chip .v { font-size: 17px; font-weight: 800; margin-top: 2px; }
-.act-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; margin: 6px 0 10px; }
-.empty { text-align: center; padding: 44px 20px; color: var(--text-muted); font-size: 14px; }
-
-/* Export modal specifics */
-.exp-label { font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--text-soft); margin:18px 0 8px; }
-.exp-label:first-child { margin-top:0; }
-.sec-row { display:flex; align-items:center; gap:12px; border:1px solid var(--border); border-radius:11px; padding:11px 14px; margin-bottom:8px; cursor:pointer; }
-.sec-row.on { background:var(--primary-soft); border-color:#f3c3ad; }
-.sec-row .nm { flex:1; font-size:14px; font-weight:600; }
-.sec-row .pg { font-size:11.5px; color:var(--text-soft); }
-.fmt-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-.fmt { border:1.5px solid var(--border); border-radius:12px; padding:16px; text-align:center; cursor:pointer; }
-.fmt.on { border-color:var(--primary); background:var(--primary-soft); }
-.fmt .fi { font-size:22px; } .fmt .ft { font-weight:700; font-size:14px; margin-top:6px; } .fmt .fs { font-size:11.5px; color:var(--text-soft); margin-top:2px; }
-.email-in { width:100%; border:1px solid var(--border); background:var(--surface); border-radius:10px; padding:10px 12px; color:var(--text); font-size:14px; outline:none; }
-
-/* Toast */
-#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--navy); color: #fff;
-  padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: all .3s; z-index: 200; max-width:90vw; }
-#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-[data-theme="dark"] #toast { background: var(--primary); }
-
-.certificate { background: #fffdf7; color: #2c2417; border: 10px solid #c98a1a; border-radius: 8px; padding: 40px 44px; text-align: center; position: relative; font-family: Georgia, serif; }
-.certificate::after { content:''; position:absolute; inset:14px; border:1.5px solid #e0c46a; border-radius:4px; pointer-events:none; }
-.certificate .cert-logo { font-family:'Segoe UI',sans-serif; font-weight:800; letter-spacing:2px; color:#c98a1a; font-size:14px; }
-.certificate h1 { font-size: 30px; letter-spacing: 3px; margin: 14px 0 4px; text-transform: uppercase; }
-.certificate .sub { font-size: 13px; color:#7a6a45; letter-spacing:1px; }
-.certificate .awarded { font-size: 12px; color:#7a6a45; margin-top: 26px; letter-spacing:1px; }
-.certificate .name { font-size: 30px; font-weight: 700; margin: 8px 0 6px; border-bottom: 2px solid #e0c46a; display: inline-block; padding: 0 24px 6px; }
-.certificate .desc { font-size: 14px; color:#4a3f28; max-width: 460px; margin: 18px auto 0; line-height: 1.6; }
-.certificate .course-name { font-weight: 700; }
-.certificate .cert-foot { display: flex; justify-content: space-between; margin-top: 40px; font-family:'Segoe UI',sans-serif; }
-.certificate .cert-foot .f { font-size: 11px; color:#7a6a45; }
-.certificate .cert-foot .f b { display: block; color:#2c2417; font-size: 13px; border-top:1px solid #c98a1a; padding-top:6px; margin-top:20px; min-width:150px; }
-.certificate .seal { position:absolute; right:40px; bottom:70px; width:64px; height:64px; border-radius:50%; background:radial-gradient(circle,#f5d77a,#c98a1a); display:grid; place-items:center; color:#fff; font-size:22px; box-shadow:0 2px 6px rgba(0,0,0,.2); }
-
-@media print {
-  body.print-cert .app, body.print-cert .topbar, body.print-cert .modal-head { display:none !important; }
-  body.print-cert .modal-overlay { position:static; background:#fff; padding:0; display:block; }
-  body.print-cert .modal { max-width:none; box-shadow:none; border:none; }
-  body.print-cert .modal-body { padding:0; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Roboto,-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+.app{max-width:1340px;margin:0 auto;padding:0 24px 60px}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;margin:0 -24px 8px;background:var(--surface);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .logo{width:40px;height:40px;border-radius:11px;background:var(--primary);display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px}
+.brand h1{font-size:17px;font-weight:800;letter-spacing:-.2px}
+.brand p{font-size:12px;color:var(--text-muted)}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.theme-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:13px;color:var(--text)}
+.theme-toggle:hover{border-color:var(--primary)}
+.admin-chip{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted)}
+.admin-chip .avatar{width:32px;height:32px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-weight:700;font-size:13px}
+.tabs{display:flex;align-items:center;gap:4px;margin:22px 0;border-bottom:1px solid var(--border)}
+.tabs .theme-toggle{margin-left:auto;margin-bottom:6px}
+.tab{padding:12px 20px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.section-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.section-sub{font-size:13px;color:var(--text-muted);margin-bottom:18px}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text-soft);margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.grid{display:grid;gap:18px}
+.two{grid-template-columns:1fr 1fr}
+.c-13{grid-template-columns:1.35fr 1fr}
+@media(max-width:980px){.two,.c-13{grid-template-columns:1fr}}
+.org-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+.org-toolbar .ot-title{font-size:18px;font-weight:800}
+.org-toolbar .spacer{flex:1}
+select.filter{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-size:14px;cursor:pointer;outline:none}
+input.filter{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text);font-size:13.5px;outline:none}
+.btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 16px;font-size:14px;font-weight:600}
+.btn:hover{border-color:var(--primary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{background:var(--primary-dark)}
+.btn.sm{padding:7px 12px;font-size:13px}
+.kpi-grid{grid-template-columns:repeat(6,1fr);margin-bottom:22px}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:620px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi{padding:16px 18px}
+.kpi .k{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-soft)}
+.kpi .v{font-size:28px;font-weight:800;margin-top:8px;letter-spacing:-.5px}
+.kpi .d{font-size:11.5px;color:var(--text-soft);margin-top:2px}
+.kpi .v.red{color:var(--danger)}.kpi .v.green{color:var(--success)}.kpi .v.gold{color:var(--gold)}
+.panel{padding:20px 22px}
+.panel h3{font-size:15px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.panel .sub{font-size:12px;color:var(--text-muted);margin-bottom:16px}
+.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.viewmore{font-size:12.5px;font-weight:700;color:var(--primary);cursor:pointer;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.viewmore:hover{text-decoration:underline}
+.chart-wrap{position:relative;height:260px}
+.chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.chip-row .chip{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px}
+.chip-row .chip .k{font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px}
+.chip-row .chip .v{font-size:16px;font-weight:800;margin-top:1px}
+.product-grid{grid-template-columns:repeat(4,1fr)}
+@media(max-width:980px){.product-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.product-grid{grid-template-columns:1fr}}
+.pcard{padding:18px;border-top:3px solid var(--pc-accent,var(--primary));transition:transform .15s,box-shadow .15s}
+.pcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.pcard-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.pcard-head .dot{width:11px;height:11px;border-radius:4px}
+.pcard-head h4{font-size:14px;font-weight:700}
+.pcard-head .tag{margin-left:auto;font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--surface-2);color:var(--text-muted)}
+.pcard-body{display:flex;align-items:center;gap:16px}
+.pchart{width:96px;height:96px;flex-shrink:0;position:relative}
+.pchart .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1;pointer-events:none}
+.pchart .center b{font-size:16px;font-weight:800;line-height:1}
+.pchart .center small{font-size:8px;color:var(--text-muted);margin-top:2px;line-height:1}
+.pstats{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+.pstat .k{font-size:10.5px;color:var(--text-muted)}
+.pstat .v{font-size:14px;font-weight:700}
+.hbar{margin-bottom:13px}.hbar:last-child{margin-bottom:0}
+.hbar .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.hbar .top .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+.hbar .top .val{font-weight:700;color:var(--text-muted)}
+.hbar .track{height:9px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.hbar .track>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),#f08a5d)}
+.ranklist{display:flex;flex-direction:column;gap:2px}
+.rankrow{display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px solid var(--border)}
+.rankrow:last-child{border-bottom:none}
+.rankrow.clickable{cursor:pointer;border-radius:8px}
+.rankrow.clickable:hover{background:var(--surface-2)}
+.rankrow .rk{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--surface-2);color:var(--text-muted);flex-shrink:0}
+.rankrow.top1 .rk{background:var(--primary);color:#fff}.rankrow.top2 .rk{background:#f0a06d;color:#fff}.rankrow.top3 .rk{background:#f5c39a;color:#7a3d1e}
+.rankrow .av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.rankrow .who{flex:1;min-width:0}
+.rankrow .who .n{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rankrow .who .e{font-size:11.5px;color:var(--text-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rankrow .score{font-weight:800;font-size:15px;text-align:right}
+.rankrow .score small{font-size:10px;color:var(--text-soft);font-weight:600;display:block}
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{text-align:left;padding:12px 14px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap}
+thead th.sortable{cursor:pointer;user-select:none}thead th.sortable:hover{color:var(--text)}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+.user-cell{display:flex;align-items:center;gap:10px}
+.user-cell .avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:11px;color:#fff}
+.user-cell .nm{font-weight:600}
+.mini-bar{display:flex;align-items:center;gap:8px}
+.mini-bar .track{width:76px;height:7px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.mini-bar .track>span{display:block;height:100%;border-radius:999px}
+.mini-bar b{font-size:12.5px;font-variant-numeric:tabular-nums}
+.link-btn{color:var(--primary);font-weight:600;cursor:pointer;background:none;border:none;font-size:13px}
+.link-btn:hover{text-decoration:underline}
+.count-link{color:var(--primary);font-weight:700;cursor:pointer;border-bottom:1px dotted var(--primary)}
+.count-link:hover{color:var(--primary-dark)}
+.badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;display:inline-block}
+.badge.completed,.badge.passed,.badge.validated,.badge.certified,.badge.generated{background:rgba(47,158,115,.14);color:var(--success)}
+.badge.progress,.badge.active,.badge.pending{background:rgba(217,130,43,.16);color:var(--warning)}
+.badge.notstarted,.badge.na{background:rgba(107,117,144,.16);color:var(--text-muted)}
+.badge.failed{background:rgba(214,69,69,.14);color:var(--danger)}
+.rk-cell{width:26px;height:26px;border-radius:8px;display:inline-grid;place-items:center;font-weight:800;font-size:12px;background:var(--surface-2);color:var(--text-muted)}
+.na-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.na-toolbar input[type=email]{flex:1;min-width:200px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:9px 12px;color:var(--text);font-size:13.5px;outline:none}
+.reason .pill{display:inline-block;background:rgba(214,69,69,.12);color:var(--danger);border-radius:6px;padding:2px 7px;font-weight:600;font-size:11.5px}
+.reason .pill.warn{background:rgba(217,130,43,.14);color:var(--warning)}
+input[type=checkbox].cb{width:16px;height:16px;accent-color:var(--primary);cursor:pointer}
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap;gap:12px}
+.pagination .info{font-size:13px;color:var(--text-muted)}
+.pages{display:flex;gap:6px}
+.pages button{min-width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:13px}
+.pages button:hover:not(:disabled){border-color:var(--primary)}
+.pages button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pages button:disabled{opacity:.4;cursor:not-allowed}
+.hidden{display:none!important}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+.search{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 14px}
+.search input{border:none;background:none;outline:none;color:var(--text);width:100%;font-size:14px}
+.search svg{flex-shrink:0;color:var(--text-soft)}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);font-size:14px;cursor:pointer;font-weight:600}
+.back-link:hover{color:var(--primary)}
+.crumbs{font-size:12.5px;color:var(--text-soft);margin-bottom:14px}
+.crumbs span.c{color:var(--primary);cursor:pointer;font-weight:600}
+.crumbs span.c:hover{text-decoration:underline}
+.user-header{display:flex;align-items:center;gap:16px;padding:22px;margin-bottom:22px;flex-wrap:wrap}
+.user-header .avatar{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:22px;color:#fff}
+.user-header h2{font-size:20px;font-weight:700}
+.user-header .meta{font-size:13px;color:var(--text-muted);margin-top:3px}
+.user-header .right{margin-left:auto;display:flex;gap:26px}
+.user-header .right .stat{text-align:center}
+.user-header .right .big{font-size:28px;font-weight:800}
+.user-header .right small{font-size:11.5px;color:var(--text-muted)}
+.cert-grid{grid-template-columns:repeat(2,1fr);margin-bottom:26px}
+@media(max-width:760px){.cert-grid{grid-template-columns:1fr}}
+.certcard{padding:16px 18px;display:flex;align-items:center;gap:14px}
+.certcard .medal{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:linear-gradient(135deg,#fde68a,#e2542c);flex-shrink:0}
+.certcard .ci{flex:1;min-width:0}
+.certcard .ci .cn{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.certcard .ci .cd{font-size:12px;color:var(--text-muted);margin-top:2px}
+.course-header{padding:22px;margin-bottom:20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.course-header .ch-main h2{font-size:19px;font-weight:700}
+.course-header .ch-main .meta{font-size:13px;color:var(--text-muted);margin-top:4px}
+.course-header .cat-pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--primary-soft);color:var(--primary);display:inline-block;margin-bottom:8px}
+.course-header .ch-prog{margin-left:auto;text-align:center}
+.ch-ring{width:90px;height:90px;position:relative}
+.ch-ring .center{position:absolute;inset:0;display:grid;place-items:center;font-weight:800;font-size:19px}
+.tip{position:relative;cursor:help}
+.tip .hint{font-size:11px;color:var(--text-soft);margin-left:3px}
+.tip::after{content:attr(data-tip);position:absolute;top:100%;right:0;transform:translateY(8px);background:#1b2a4a;color:#fff;font-size:11.5px;font-weight:500;line-height:1.45;text-align:left;padding:9px 12px;border-radius:9px;width:260px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:70;box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.tip::before{content:'';position:absolute;top:100%;right:22px;transform:translateY(2px);border:6px solid transparent;border-bottom-color:#1b2a4a;opacity:0;transition:opacity .15s;z-index:71}
+.tip:hover::after,.tip:hover::before{opacity:1}
+.cert-panel{padding:20px 22px;margin-bottom:20px}
+.cert-panel .cp-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.cert-panel .cp-head h3{font-size:15px;font-weight:700}
+.cert-panel .cp-type{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--primary-soft);color:var(--primary)}
+.cert-panel .cp-status{margin-left:auto;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.crit{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.crit .c{border:1px solid var(--border);border-radius:11px;padding:12px 14px;display:flex;align-items:center;gap:11px}
+.crit .c .ci2{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;flex-shrink:0;color:#fff}
+.crit .c .lbl{font-size:13px;font-weight:600}
+.crit .c .sub{font-size:11.5px;color:var(--text-muted)}
+.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.subtab{display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-size:13.5px;font-weight:600;color:var(--text-muted)}
+.subtab:hover{border-color:var(--primary)}
+.subtab.active{color:#fff}
+.subtab .count{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:rgba(255,255,255,.25)}
+.subtab:not(.active) .count{background:var(--surface-2);color:var(--text-muted)}
+.subtab .dot{width:9px;height:9px;border-radius:3px}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,20,32,.55);z-index:100;display:grid;place-items:center;padding:20px;backdrop-filter:blur(2px);overflow-y:auto}
+.modal{background:var(--surface);border-radius:16px;box-shadow:var(--shadow-lg);width:100%;max-width:640px;max-height:90vh;overflow-y:auto;border:1px solid var(--border)}
+.modal.wide{max-width:760px}
+.modal-head{display:flex;align-items:flex-start;gap:12px;padding:22px 24px 16px;border-bottom:1px solid var(--border)}
+.modal-head .tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;color:#fff}
+.modal-head h3{font-size:17px;font-weight:800}
+.modal-head .x{margin-left:auto;cursor:pointer;color:var(--text-muted);font-size:22px;line-height:1;background:none;border:none}
+.modal-body{padding:16px 24px 24px}
+.summary-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.summary-row .chip{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;flex:1;min-width:110px}
+.summary-row .chip .k{font-size:11px;color:var(--text-muted)}
+.summary-row .chip .v{font-size:17px;font-weight:800;margin-top:2px}
+.act-title{font-size:13px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin:6px 0 10px}
+.empty{text-align:center;padding:44px 20px;color:var(--text-muted);font-size:14px}
+.exp-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-soft);margin:18px 0 8px}
+.exp-label:first-child{margin-top:0}
+.sec-row{display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:11px;padding:11px 14px;margin-bottom:8px;cursor:pointer}
+.sec-row.on{background:var(--primary-soft);border-color:#f3c3ad}
+.sec-row .nm{flex:1;font-size:14px;font-weight:600}
+.sec-row .pg{font-size:11.5px;color:var(--text-soft)}
+.fmt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.fmt{border:1.5px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer}
+.fmt.on{border-color:var(--primary);background:var(--primary-soft)}
+.fmt .fi{font-size:22px}.fmt .ft{font-weight:700;font-size:14px;margin-top:6px}.fmt .fs{font-size:11.5px;color:var(--text-soft);margin-top:2px}
+.email-in{width:100%;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:all .3s;z-index:200;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+[data-theme="dark"] #toast{background:var(--primary)}
+.certificate{background:#fffdf7;color:#2c2417;border:10px solid #c98a1a;border-radius:8px;padding:40px 44px;text-align:center;position:relative;font-family:Georgia,serif}
+.certificate::after{content:'';position:absolute;inset:14px;border:1.5px solid #e0c46a;border-radius:4px;pointer-events:none}
+.certificate .cert-logo{font-family:'Segoe UI',sans-serif;font-weight:800;letter-spacing:2px;color:#c98a1a;font-size:14px}
+.certificate h1{font-size:30px;letter-spacing:3px;margin:14px 0 4px;text-transform:uppercase}
+.certificate .sub{font-size:13px;color:#7a6a45;letter-spacing:1px}
+.certificate .awarded{font-size:12px;color:#7a6a45;margin-top:26px;letter-spacing:1px}
+.certificate .name{font-size:30px;font-weight:700;margin:8px 0 6px;border-bottom:2px solid #e0c46a;display:inline-block;padding:0 24px 6px}
+.certificate .desc{font-size:14px;color:#4a3f28;max-width:460px;margin:18px auto 0;line-height:1.6}
+.certificate .course-name{font-weight:700}
+.certificate .cert-foot{display:flex;justify-content:space-between;margin-top:40px;font-family:'Segoe UI',sans-serif}
+.certificate .cert-foot .f{font-size:11px;color:#7a6a45}
+.certificate .cert-foot .f b{display:block;color:#2c2417;font-size:13px;border-top:1px solid #c98a1a;padding-top:6px;margin-top:20px;min-width:150px}
+.certificate .seal{position:absolute;right:40px;bottom:70px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,#f5d77a,#c98a1a);display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+@media print{
+  body.print-cert .app,body.print-cert .topbar,body.print-cert .modal-head{display:none!important}
+  body.print-cert .modal-overlay{position:static;background:#fff;padding:0;display:block}
+  body.print-cert .modal{max-width:none;box-shadow:none;border:none}body.print-cert .modal-body{padding:0}
 }
 </style>
 </head>
 <body>
 <div class="app">
-
-  <header class="topbar">
-    <div class="brand"><div class="logo">B</div>
-      <div><h1>Acme Industries</h1><p>Workspace · Learning Analytics</p></div></div>
-    <div class="topbar-actions">
-      <div class="admin-chip"><div class="avatar">SN</div><div><div style="font-weight:600;color:var(--text)">Acme Corp</div><div>Admin</div></div></div>
-      <div class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span><span id="themeText">Dark</span></div>
-    </div>
-  </header>
-
   <nav class="tabs">
     <div class="tab active" data-tab="org">Overall Organization Report</div>
     <div class="tab" data-tab="users">User-wise Progress Report</div>
+    <div class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span><span id="themeText">Dark</span></div>
   </nav>
 
-  <!-- ================= TAB 1 ================= -->
+  <!-- ORG -->
   <section id="tab-org">
     <div class="org-toolbar">
       <div class="ot-title">Organization Overview</div>
       <div class="spacer"></div>
       <label style="font-size:12px;color:var(--text-muted);font-weight:600">Period</label>
       <select class="filter" id="periodSel">
-        <option value="7">Last 7 days</option>
-        <option value="30" selected>Last 30 days</option>
-        <option value="90">Last 90 days</option>
-        <option value="400">All time</option>
-        <option value="custom">Custom range…</option>
+        <option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option>
+        <option value="90">Last 90 days</option><option value="400">All time</option><option value="custom">Custom range…</option>
       </select>
       <span id="customRange" class="hidden" style="display:inline-flex;align-items:center;gap:8px">
-        <input type="date" class="filter" id="dateFrom" min="2026-03-23" max="2026-06-21" value="2026-05-22">
+        <input type="date" class="filter" id="dateFrom" min="2025-05-01" max="2026-06-21" value="2026-05-22">
         <span style="color:var(--text-muted);font-size:13px">to</span>
-        <input type="date" class="filter" id="dateTo" min="2026-03-23" max="2026-06-21" value="2026-06-21">
+        <input type="date" class="filter" id="dateTo" min="2025-05-01" max="2026-06-21" value="2026-06-21">
       </span>
       <button class="btn primary" id="downloadSummaryBtn">⬇ Download Summary</button>
     </div>
@@ -362,37 +281,36 @@ input[type=checkbox].cb { width:16px; height:16px; accent-color:var(--primary); 
 
     <div class="grid c-13" style="margin-bottom:22px">
       <div class="card panel"><h3>📈 Daily User Login Trends</h3>
-        <div class="sub" id="loginSub">Unique users who logged in each day (a user is counted once per day)</div>
-        <div class="chip-row" id="loginChips"></div>
-        <div class="chart-wrap"><canvas id="loginChart"></canvas></div></div>
+        <div class="sub">Unique users who logged in each day (a user is counted once per day)</div>
+        <div class="chip-row" id="loginChips"></div><div class="chart-wrap"><canvas id="loginChart"></canvas></div></div>
       <div class="card panel"><h3>🧩 Utilization vs Completion</h3>
-        <div class="sub">By product type · Sandbox is utilization-only</div>
-        <div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
+        <div class="sub">By product type · Sandbox is utilization-only</div><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
     </div>
 
     <div class="eyebrow">Product-wise Summary</div>
     <div class="grid product-grid" id="productGrid" style="margin-bottom:22px"></div>
 
-    <div class="grid c-13" style="margin-bottom:22px">
-      <div class="card panel"><h3>🔥 Top 5 Most Popular Courses</h3><div class="sub">By enrollments / engagement</div><div id="popularCourses"></div></div>
-      <div class="card panel"><h3>🏆 Top Performing Users</h3><div class="sub">Composite score across all product types</div><div class="ranklist" id="topPerformers"></div></div>
+    <div class="grid two" style="margin-bottom:22px">
+      <div class="card panel"><div class="panel-head"><h3>🔥 Top 5 Most Popular Courses</h3><span class="viewmore" id="vmPopular">View more →</span></div><div class="sub">By enrollments / engagement</div><div id="popularCourses"></div></div>
+      <div class="card panel"><div class="panel-head"><h3>🏆 Top Performing Users</h3><span class="viewmore" id="vmTop">View more →</span></div><div class="sub">Composite score across all product types</div><div class="ranklist" id="topPerformers"></div></div>
     </div>
 
     <div class="grid two" style="margin-bottom:22px">
-      <div class="card panel"><h3>✅ Top 5 Practice Tests</h3><div class="sub">Best-performing tests by pass rate · click a user count for details</div>
+      <div class="card panel"><div class="panel-head"><h3>✅ Top 5 Practice Tests</h3><span class="viewmore" id="vmPTtop">View more →</span></div><div class="sub">Best-performing tests by pass rate · click a user count</div>
         <div class="table-wrap"><table><thead><tr><th>#</th><th>Practice Test</th><th>Users</th><th>Attempts</th><th>Pass Rate</th></tr></thead><tbody id="ptTop"></tbody></table></div></div>
-      <div class="card panel"><h3>⚠️ Lowest Practice Test Scores</h3><div class="sub">Tests with the lowest average scores · click a user count for details</div>
+      <div class="card panel"><div class="panel-head"><h3>⚠️ Lowest Practice Test Scores</h3><span class="viewmore" id="vmPTlow">View more →</span></div><div class="sub">Lowest average scores · click a user count</div>
         <div class="table-wrap"><table><thead><tr><th>#</th><th>Practice Test</th><th>Users</th><th>Avg Score</th><th>Pass Rate</th></tr></thead><tbody id="ptLow"></tbody></table></div></div>
     </div>
 
     <div class="grid c-13" style="margin-bottom:22px">
-      <div class="card panel"><h3>🧪 Labs Performance Report</h3><div class="sub">Labs with the highest number of validation attempts · click a user count for details</div>
+      <div class="card panel"><div class="panel-head"><h3>🧪 Labs Performance Report</h3><span class="viewmore" id="vmLabs">View more →</span></div><div class="sub">Most validation attempts · click a user count</div>
         <div class="table-wrap"><table><thead><tr><th>#</th><th>Lab Name</th><th>Users</th><th>Attempts</th><th>Pass Ratio</th></tr></thead><tbody id="labsPerf"></tbody></table></div></div>
-      <div class="card panel"><h3>🏅 Most Certificates Earned</h3><div class="sub">Top 5 learners by certificates (dynamic rules)</div><div class="ranklist" id="certLeaders"></div></div>
+      <div class="card panel"><div class="panel-head"><h3>🏅 Most Certificates Earned</h3><span class="viewmore" id="vmCert">View more →</span></div><div class="sub">Top learners by certificates (client-wide rule)</div><div class="ranklist" id="certLeaders"></div></div>
     </div>
 
-    <div class="card panel" style="margin-bottom:22px">
-      <h3>🔔 Need Attention</h3><div class="sub">Learners requiring follow-up — select and send a reminder email</div>
+    <div class="card panel">
+      <div class="panel-head"><h3>🔔 Need Attention</h3><span class="viewmore" id="vmAttention">View more →</span></div>
+      <div class="sub">Learners with the lowest overall progress — select and send a reminder email</div>
       <div class="na-toolbar">
         <label style="font-size:13px;display:flex;align-items:center;gap:7px"><input type="checkbox" class="cb" id="naSelectAll"> Select all</label>
         <input type="email" id="naEmail" placeholder="Optional: cc manager@acme.io" />
@@ -404,14 +322,13 @@ input[type=checkbox].cb { width:16px; height:16px; accent-color:var(--primary); 
     </div>
   </section>
 
-  <!-- ================= TAB 2 ================= -->
+  <!-- USERS -->
   <section id="tab-users" class="hidden">
     <div id="userListView">
       <div class="section-title">User-wise Progress Report</div>
       <div class="section-sub">Users sorted by most recently enrolled. Open a user for their full learning record.</div>
       <div class="toolbar">
-        <div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="userSearch" placeholder="Search by name or email..." /></div>
+        <div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="userSearch" placeholder="Search by name or email..." /></div>
         <select class="filter" id="progressFilter"><option value="all">All Progress</option><option value="high">High (≥ 75%)</option><option value="mid">Medium (40–74%)</option><option value="low">Low (&lt; 40%)</option></select>
         <select class="filter" id="certFilter"><option value="all">All Certification</option><option value="has">Has Certificate</option><option value="none">No Certificate</option></select>
         <button class="btn primary" id="exportBtn">⬇ Export to Excel</button>
@@ -429,31 +346,24 @@ input[type=checkbox].cb { width:16px; height:16px; accent-color:var(--primary); 
     <div id="userDetailView" class="hidden">
       <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
         <div class="back-link" id="backToList"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> Back to user list</div>
-        <div style="margin-left:auto;display:flex;gap:10px">
-          <button class="btn sm" id="exportUserBtn">⬇ Export CSV</button>
-          <button class="btn sm" id="printReportBtn">🖨️ Print / PDF</button>
-        </div>
+        <div style="margin-left:auto;display:flex;gap:10px"><button class="btn sm" id="exportUserBtn">⬇ Export CSV</button><button class="btn sm" id="printReportBtn">🖨️ Print / PDF</button></div>
       </div>
       <div style="height:14px"></div>
-      <div class="card user-header">
-        <div class="avatar" id="duAvatar"></div>
-        <div><h2 id="duName"></h2><div class="meta" id="duMeta"></div></div>
-        <div class="right">
-          <div class="stat"><div class="big" id="duOverall"></div><small>Overall Progress</small></div>
-          <div class="stat"><div class="big" id="duCerts" style="color:var(--gold)"></div><small>Certificates</small></div>
-          <div class="stat"><div class="big" id="duCourses"></div><small>Courses</small></div>
-        </div>
-      </div>
       <div id="courseListPane">
-        <div class="section-title" style="font-size:16px;margin-bottom:14px">Overall Progress by Product Type</div>
-        <div class="grid radial-grid" id="radialGrid"></div>
-        <div id="certSection">
-          <div class="section-title" style="font-size:16px;margin-bottom:4px">Certificates Earned</div>
-          <div class="section-sub">Issued automatically based on each course's configured criteria.</div>
-          <div class="grid cert-grid" id="certGrid"></div>
+        <div class="card user-header">
+          <div class="avatar" id="duAvatar"></div>
+          <div><h2 id="duName"></h2><div class="meta" id="duMeta"></div></div>
+          <div class="right">
+            <div class="stat"><div class="big" id="duOverall"></div><small>Overall Progress</small></div>
+            <div class="stat"><div class="big" id="duCerts" style="color:var(--gold)"></div><small>Certificates</small></div>
+            <div class="stat"><div class="big" id="duCourses"></div><small>Courses</small></div>
+          </div>
         </div>
+        <div class="section-title" style="font-size:16px;margin-bottom:4px">Certificates Earned</div>
+        <div class="section-sub">Issued automatically based on the client-wide certification rule.</div>
+        <div class="grid cert-grid" id="certGrid"></div>
         <div class="section-title" style="font-size:16px;margin-bottom:4px">Enrollment &amp; Course Records</div>
-        <div class="section-sub">One row per enrolled course. Open a course to see criteria, content and activity records.</div>
+        <div class="section-sub">One row per enrolled course. Open a course to see only that course’s report.</div>
         <div class="table-wrap"><table>
           <thead><tr><th>Course Name</th><th>Enrolled</th><th>Last Accessed</th><th>Progress</th><th>Status</th><th>Certificate</th><th>Action</th></tr></thead>
           <tbody id="courseTableBody"></tbody></table></div>
@@ -462,9 +372,8 @@ input[type=checkbox].cb { width:16px; height:16px; accent-color:var(--primary); 
         <div class="crumbs" id="courseCrumbs"></div>
         <div class="card course-header">
           <div class="ch-main"><span class="cat-pill" id="cdCat"></span><h2 id="cdName"></h2><div class="meta" id="cdMeta"></div></div>
-          <div class="ch-prog"><div class="ch-ring"><canvas id="cdRing"></canvas><div class="center" id="cdRingVal"></div></div><small style="font-size:11px;color:var(--text-muted)">Course Progress</small></div>
+          <div class="ch-prog tip" id="cdProg"><div class="ch-ring"><canvas id="cdRing"></canvas><div class="center" id="cdRingVal"></div></div><small style="font-size:11px;color:var(--text-muted)">Course Progress <span class="hint">ⓘ</span></small></div>
         </div>
-        <div class="card cert-panel" id="certPanel"></div>
         <div class="subtabs" id="courseSubtabs"></div>
         <div class="table-wrap"><table><thead id="itemHead"></thead><tbody id="itemBody"></tbody></table></div>
       </div>
@@ -476,546 +385,309 @@ input[type=checkbox].cb { width:16px; height:16px; accent-color:var(--primary); 
 <div id="toast"></div>
 
 <script>
-/* ===== THEME ===== */
 const themeToggle=document.getElementById('themeToggle'),themeIcon=document.getElementById('themeIcon'),themeText=document.getElementById('themeText');
 let theme='light';
-themeToggle.addEventListener('click',()=>{ theme=theme==='light'?'dark':'light'; document.documentElement.setAttribute('data-theme',theme);
-  themeIcon.textContent=theme==='light'?'🌙':'☀️'; themeText.textContent=theme==='light'?'Dark':'Light'; rerenderCharts(); });
-function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3200); }
+themeToggle.addEventListener('click',()=>{theme=theme==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',theme);themeIcon.textContent=theme==='light'?'🌙':'☀️';themeText.textContent=theme==='light'?'Dark':'Light';rerenderCharts();});
+function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);}
 
-/* ===== META ===== */
 const PRODUCTS={
-  'Practice Test':{key:'pt',color:'--accent-pt',label:'Practice Tests',completable:true,icon:'✅'},
-  'Video Course':{key:'video',color:'--accent-video',label:'Video Courses',completable:true,icon:'🎬'},
-  'Lab':{key:'lab',color:'--accent-lab',label:'Labs',completable:true,icon:'🧪'},
-  'Sandbox':{key:'sandbox',color:'--accent-sandbox',label:'Sandboxes',completable:false,icon:'🧰'}
+  'Practice Test':{key:'pt',color:'--accent-pt',label:'Practice Tests',completable:true},
+  'Video Course':{key:'video',color:'--accent-video',label:'Video Courses',completable:true},
+  'Lab':{key:'lab',color:'--accent-lab',label:'Labs',completable:true},
+  'Sandbox':{key:'sandbox',color:'--accent-sandbox',label:'Sandboxes',completable:false}
 };
 const TYPE_ORDER=['Practice Test','Video Course','Lab','Sandbox'];
 
-/* Certification is configured ONCE at the CLIENT (company) level and applies to
-   EVERY course in the workspace. Courses cannot define their own criteria. */
-const CLIENT_CERT={ enabled:true, video:true, pt:false, labs:true, labsPct:60 };
+/* Certification is set ONCE at client level and applies to every course. */
+const CLIENT_CERT={enabled:true,video:true,pt:false,labs:true,labsPct:60};
 
 const COURSE_DEFS=[
-  { name:'AWS Certified Solutions Architect – Associate', cat:'Cloud', cert:{video:true,pt:true,labs:true,labsPct:80},
-    pt:['SAA Domain 1 Quiz','SAA Domain 2 Quiz','SAA Full Mock Exam 1','SAA Full Mock Exam 2'],
-    video:['Compute & EC2','Storage & S3','Networking & VPC','Databases & RDS'],
-    lab:['Launch an EC2 Instance','Configure a Custom VPC','Host a Static Site on S3'], sandbox:['AWS Console Sandbox'] },
-  { name:'Certified Kubernetes Administrator (CKA)', cat:'DevOps', cert:{video:false,pt:false,labs:true,labsPct:100},
-    pt:['CKA Core Concepts Quiz','CKA Scheduling Quiz','CKA Full Mock Exam'],
-    video:['Cluster Architecture','Workloads & Scheduling','Services & Networking','Storage'],
-    lab:['Bootstrap a Cluster','Deploy a Pod & Service','Configure Persistent Volumes'], sandbox:['Kubernetes Playground'] },
-  { name:'Microsoft Azure Fundamentals (AZ-900)', cat:'Cloud', cert:{video:true,pt:false,labs:false,labsPct:100},
-    pt:['AZ-900 Concepts Quiz','AZ-900 Full Practice Test'], video:['Cloud Concepts','Core Azure Services','Security & Compliance'],
-    lab:['Create a Virtual Machine','Set up a Resource Group'], sandbox:['Azure Portal Sandbox'] },
-  { name:'DevOps CI/CD with GitHub Actions', cat:'DevOps', cert:{video:false,pt:true,labs:true,labsPct:70},
-    pt:['CI/CD Fundamentals Quiz','Pipelines & Secrets Quiz'], video:['Intro to CI/CD','Building Workflows','Deployments & Environments'],
-    lab:['Build a CI Pipeline','Automate a Release'], sandbox:['Linux Terminal Sandbox'] },
-  { name:'Python for Data Science', cat:'Data', cert:{video:true,pt:true,labs:false,labsPct:100},
-    pt:['Python Basics Quiz','Pandas & NumPy Quiz','Data Viz Quiz'], video:['Python Foundations','Working with Pandas','Visualization with Matplotlib','Intro to ML'],
-    lab:['Clean a Dataset','Build a Regression Model'], sandbox:['Jupyter Sandbox'] },
-  { name:'CompTIA Security+ (SY0-701)', cat:'Security', cert:{video:false,pt:true,labs:false,labsPct:100},
-    pt:['Threats & Attacks Quiz','Cryptography Quiz','Security+ Full Mock Exam'], video:['Security Fundamentals','Network Security','Identity & Access'],
-    lab:['Configure a Firewall Rule','Harden a Linux Host'], sandbox:['Security Lab Sandbox'] },
-  { name:'React Front-End Developer', cat:'Web', cert:{video:true,pt:false,labs:true,labsPct:100},
-    pt:['React Basics Quiz','Hooks & State Quiz'], video:['JSX & Components','State & Props','Hooks Deep Dive','Routing'],
-    lab:['Build a To-Do App','Create a Custom Hook'], sandbox:['CodeSandbox Playground'] },
-  { name:'Terraform Associate (003)', cat:'Cloud', cert:{video:true,pt:true,labs:true,labsPct:60},
-    pt:['Terraform Basics Quiz','State & Modules Quiz'], video:['Infrastructure as Code','Providers & Resources','State Management'],
-    lab:['Provision a VM with Terraform','Use Remote State'], sandbox:['Terraform Sandbox'] },
-  { name:'Google Cloud Digital Leader', cat:'Cloud',
-    pt:['GCP Fundamentals Quiz','Digital Transformation Quiz'], video:['Google Cloud Basics','Infrastructure & App Modernization','Data & ML in the Cloud'],
-    lab:['Deploy on Cloud Run','Query with BigQuery'], sandbox:['Google Cloud Sandbox'] },
-  { name:'Docker Certified Associate', cat:'DevOps',
-    pt:['Docker Basics Quiz','Images & Networking Quiz','DCA Full Mock Exam'], video:['Containers 101','Building Images','Compose & Networking','Swarm & Orchestration'],
-    lab:['Build & Run a Container','Write a Compose File','Push to a Registry'], sandbox:['Docker Playground'] }
+  {name:'AWS Certified Solutions Architect – Associate',cat:'Cloud',pt:['SAA Domain 1 Quiz','SAA Domain 2 Quiz','SAA Full Mock Exam 1','SAA Full Mock Exam 2'],video:['Compute & EC2','Storage & S3','Networking & VPC','Databases & RDS'],lab:['Launch an EC2 Instance','Configure a Custom VPC','Host a Static Site on S3'],sandbox:['AWS Console Sandbox']},
+  {name:'Certified Kubernetes Administrator (CKA)',cat:'DevOps',pt:['CKA Core Concepts Quiz','CKA Scheduling Quiz','CKA Full Mock Exam'],video:['Cluster Architecture','Workloads & Scheduling','Services & Networking','Storage'],lab:['Bootstrap a Cluster','Deploy a Pod & Service','Configure Persistent Volumes'],sandbox:['Kubernetes Playground']},
+  {name:'Microsoft Azure Fundamentals (AZ-900)',cat:'Cloud',pt:['AZ-900 Concepts Quiz','AZ-900 Full Practice Test'],video:['Cloud Concepts','Core Azure Services','Security & Compliance'],lab:['Create a Virtual Machine','Set up a Resource Group'],sandbox:['Azure Portal Sandbox']},
+  {name:'DevOps CI/CD with GitHub Actions',cat:'DevOps',pt:['CI/CD Fundamentals Quiz','Pipelines & Secrets Quiz'],video:['Intro to CI/CD','Building Workflows','Deployments & Environments'],lab:['Build a CI Pipeline','Automate a Release'],sandbox:['Linux Terminal Sandbox']},
+  {name:'Python for Data Science',cat:'Data',pt:['Python Basics Quiz','Pandas & NumPy Quiz','Data Viz Quiz'],video:['Python Foundations','Working with Pandas','Visualization with Matplotlib','Intro to ML'],lab:['Clean a Dataset','Build a Regression Model'],sandbox:['Jupyter Sandbox']},
+  {name:'CompTIA Security+ (SY0-701)',cat:'Security',pt:['Threats & Attacks Quiz','Cryptography Quiz','Security+ Full Mock Exam'],video:['Security Fundamentals','Network Security','Identity & Access'],lab:['Configure a Firewall Rule','Harden a Linux Host'],sandbox:['Security Lab Sandbox']},
+  {name:'React Front-End Developer',cat:'Web',pt:['React Basics Quiz','Hooks & State Quiz'],video:['JSX & Components','State & Props','Hooks Deep Dive','Routing'],lab:['Build a To-Do App','Create a Custom Hook'],sandbox:['CodeSandbox Playground']},
+  {name:'Terraform Associate (003)',cat:'Cloud',pt:['Terraform Basics Quiz','State & Modules Quiz'],video:['Infrastructure as Code','Providers & Resources','State Management'],lab:['Provision a VM with Terraform','Use Remote State'],sandbox:['Terraform Sandbox']},
+  {name:'Google Cloud Digital Leader',cat:'Cloud',pt:['GCP Fundamentals Quiz','Digital Transformation Quiz'],video:['Google Cloud Basics','Infrastructure & App Modernization','Data & ML in the Cloud'],lab:['Deploy on Cloud Run','Query with BigQuery'],sandbox:['Google Cloud Sandbox']},
+  {name:'Docker Certified Associate',cat:'DevOps',pt:['Docker Basics Quiz','Images & Networking Quiz','DCA Full Mock Exam'],video:['Containers 101','Building Images','Compose & Networking','Swarm & Orchestration'],lab:['Build & Run a Container','Write a Compose File','Push to a Registry'],sandbox:['Docker Playground']}
 ];
 
-/* ===== HELPERS ===== */
 const TODAY=new Date('2026-06-21');
-function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-function chance(p){ return Math.random()<p; }
-function dateStr(daysAgo){ const d=new Date(TODAY); d.setDate(d.getDate()-Math.max(0,daysAgo)); return d.toISOString().slice(0,10); }
-function offsetOf(s){ return Math.round((TODAY-new Date(s))/86400000); }
-function fmtDate(s){ if(!s||s==='—') return '—'; return new Date(s).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}); }
-function fmtShort(s){ return new Date(s).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
-function initials(n){ return n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(); }
-function avg(a){ return a.length? Math.round(a.reduce((s,x)=>s+x,0)/a.length):0; }
-function certLabel(c){ const p=[]; if(c.video)p.push('Video'); if(c.pt)p.push('Practice Test'); if(c.labs)p.push('Labs'); return p.join(' + '); }
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function chance(p){return Math.random()<p;}
+function dateStr(d){const x=new Date(TODAY);x.setDate(x.getDate()-Math.max(0,d));return x.toISOString().slice(0,10);}
+function offsetOf(s){return Math.round((TODAY-new Date(s))/86400000);}
+function fmtDate(s){if(!s||s==='—')return '—';return new Date(s).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});}
+function fmtShort(s){return new Date(s).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function initials(n){return n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();}
+function avg(a){return a.length?Math.round(a.reduce((s,x)=>s+x,0)/a.length):0;}
+function certLabel(c){const p=[];if(c.video)p.push('Video');if(c.pt)p.push('Practice Test');if(c.labs)p.push('Labs');return p.join(' + ');}
 const avatarColors=['#e2542c','#3b6fe0','#2f9e73','#7c5cd0','#d9822b','#c98a1a','#d64545','#0ea5a5'];
 const firstNames=['Aarav','Priya','Daniel','Sofia','Liam','Mei','Carlos','Ananya','Noah','Fatima','Ethan','Yuki','Omar','Grace','Ravi','Elena','Tom','Nadia','Jack','Lina','Hiro','Zara','Ben','Maya','Isla','Leo','Aisha','Marco','Nina','Kofi','Sara','Diego','Anya','Felix','Ivy','Jamal','Rosa','Kai','Tara','Sven','Lena','Amir','Chloe','Dev','Freya','Hugo','Iris','Juan','Nora','Paul'];
 const lastNames=['Sharma','Patel','Reed','Garcia','Chen','Okafor','Singh','Muller','Tanaka','Hassan','Brown','Kim','Lopez','Nguyen','Ali','Rossi','Cohen','Dubois','Park','Khan','Silva','Ivanov','Costa','Yamamoto','Adebayo','Meyer','Fischer','Novak','Haddad','Petrov','Bianchi','Weber','Torres','Kowalski','Andersson','Oconnor','Mensah','Suzuki','Ramirez','Bauer'];
 
-function buildPT(name,off,eng){ eng=eng==null?1:eng; const accessed=chance(0.5+0.42*eng); const attempts=accessed?rand(1,Math.max(2,Math.round(5*eng))):0; const acts=[]; let best=0,latest=0,passed=false;
-  for(let i=1;i<=attempts;i++){ const score=rand(38,66+Math.round(33*eng)); best=Math.max(best,score); latest=score; const result=score>=70?'Pass':'Fail'; if(result==='Pass')passed=true;
-    acts.push({'#':i,Date:dateStr(rand(0,off)),'Score':score+'%','Result':result,'Time Spent':rand(18,55)+' min'}); }
+function buildPT(name,off,eng){eng=eng==null?1:eng;const accessed=chance(0.5+0.42*eng);const attempts=accessed?rand(1,Math.max(2,Math.round(5*eng))):0;const acts=[];let best=0,latest=0,passed=false;
+  for(let i=1;i<=attempts;i++){const score=rand(38,66+Math.round(33*eng));best=Math.max(best,score);latest=score;const result=score>=70?'Pass':'Fail';if(result==='Pass')passed=true;acts.push({'#':i,Date:dateStr(rand(0,off)),'Score':score+'%','Result':result,'Time Spent':rand(18,55)+' min'});}
   acts.sort((a,b)=>a.Date<b.Date?-1:1).forEach((a,i)=>a['#']=i+1);
-  const status=passed?'Passed':(accessed?'Failed':'Not Attempted'); const progress=passed?100:(accessed?Math.round(best):0);
-  return {type:'Practice Test',name,accessed,lastAccessed:accessed?dateStr(rand(0,off)):'—',status,passPct:accessed?best:0,attempts,latest,passed,progress,activities:acts}; }
-function buildVideo(name,off,eng){ eng=eng==null?1:eng; const total=rand(6,16); const accessed=chance(0.5+0.42*eng); const done=accessed?(chance(0.1+0.86*eng)?total:rand(0,total)):0; const progress=Math.round(done/total*100);
-  const status=progress>=100?'Completed':(accessed?'In Progress':'Not Started'); const acts=[]; let cum=0; const sessions=accessed?rand(1,5):0;
-  for(let i=1;i<=sessions;i++){ const w=Math.min(rand(1,4),done-cum); if(w<=0)break; cum+=w; acts.push({'#':i,Date:dateStr(rand(0,off)),'Modules Watched':w,'Watch Time':rand(20,90)+' min','Progress After':Math.round(cum/total*100)+'%'}); }
-  return {type:'Video Course',name,accessed,lastAccessed:accessed?dateStr(rand(0,off)):'—',status,progress,modulesTotal:total,modulesDone:done,activities:acts}; }
-function buildLab(name,off,eng){ eng=eng==null?1:eng; const accessed=chance(0.5+0.4*eng); const attempts=accessed?rand(1,6):0; const acts=[]; let success=0,validated=false;
-  for(let i=1;i<=attempts;i++){ const ok=chance(0.3+0.55*eng); if(ok){success++;validated=true;} acts.push({'#':i,Date:dateStr(rand(0,off)),'Result':ok?'Validated':'Failed','Duration':rand(10,60)+' min'}); }
-  const progress=validated?100:(accessed?rand(20,80):0); const status=validated?'Validated':(accessed?'In Progress':'Not Started');
-  return {type:'Lab',name,accessed,lastAccessed:accessed?dateStr(rand(0,off)):'—',status,progress,attempts,successful:success,validated,activities:acts}; }
-function buildSandbox(name,off,eng){ eng=eng==null?1:eng; const accessed=chance(0.4+0.4*eng); const launches=accessed?rand(1,18):0; const acts=[]; let tot=0;
-  for(let i=1;i<=Math.min(launches,6);i++){ const dur=rand(8,75); tot+=dur; acts.push({'#':i,Date:dateStr(rand(0,off)),'Duration':dur+' min','Actions':rand(5,60)}); }
-  const progress=accessed?rand(25,100):0; const status=accessed?'Active':'Not Started';
-  return {type:'Sandbox',name,accessed,lastAccessed:accessed?dateStr(rand(0,off)):'—',status,progress,launches,usageTime:(Math.floor(tot/60))+'h '+(tot%60)+'m',totalMin:tot,activities:acts}; }
+  const status=passed?'Passed':(accessed?'Failed':'Not Attempted');const progress=passed?100:(accessed?Math.round(best):0);
+  return{type:'Practice Test',name,accessed,lastAccessed:accessed?dateStr(rand(0,off)):'—',status,passPct:accessed?best:0,attempts,latest,passed,progress,activities:acts};}
+function buildVideo(name,off,eng){eng=eng==null?1:eng;const total=rand(6,16);const accessed=chance(0.5+0.42*eng);const done=accessed?(chance(0.1+0.86*eng)?total:rand(0,total)):0;const progress=Math.round(done/total*100);
+  const status=progress>=100?'Completed':(accessed?'In Progress':'Not Started');const acts=[];let cum=0;const sessions=accessed?rand(1,5):0;
+  for(let i=1;i<=sessions;i++){const w=Math.min(rand(1,4),done-cum);if(w<=0)break;cum+=w;acts.push({'#':i,Date:dateStr(rand(0,off)),'Modules Watched':w,'Watch Time':rand(20,90)+' min','Progress After':Math.round(cum/total*100)+'%'});}
+  return{type:'Video Course',name,accessed,lastAccessed:accessed?dateStr(rand(0,off)):'—',status,progress,modulesTotal:total,modulesDone:done,activities:acts};}
+function buildLab(name,off,eng){eng=eng==null?1:eng;const accessed=chance(0.5+0.4*eng);const attempts=accessed?rand(1,6):0;const acts=[];let success=0,validated=false;
+  for(let i=1;i<=attempts;i++){const ok=chance(0.3+0.55*eng);if(ok){success++;validated=true;}acts.push({'#':i,Date:dateStr(rand(0,off)),'Result':ok?'Validated':'Failed','Duration':rand(10,60)+' min'});}
+  const progress=validated?100:(accessed?rand(20,80):0);const status=validated?'Validated':(accessed?'In Progress':'Not Started');
+  return{type:'Lab',name,accessed,lastAccessed:accessed?dateStr(rand(0,off)):'—',status,progress,attempts,successful:success,validated,activities:acts};}
+function buildSandbox(name,off,eng){eng=eng==null?1:eng;const accessed=chance(0.4+0.4*eng);const launches=accessed?rand(1,18):0;const acts=[];let tot=0;
+  for(let i=1;i<=Math.min(launches,6);i++){const dur=rand(8,75);tot+=dur;acts.push({'#':i,Date:dateStr(rand(0,off)),'Duration':dur+' min','Actions':rand(5,60)});}
+  const progress=accessed?rand(25,100):0;const status=accessed?'Active':'Not Started';
+  return{type:'Sandbox',name,accessed,lastAccessed:accessed?dateStr(rand(0,off)):'—',status,progress,launches,usageTime:(Math.floor(tot/60))+'h '+(tot%60)+'m',activities:acts};}
 
 function buildCourseInstance(def,off,eng){
-  const items={ 'Practice Test':def.pt.map(n=>buildPT(n,off,eng)),'Video Course':def.video.map(n=>buildVideo(n,off,eng)),'Lab':def.lab.map(n=>buildLab(n,off,eng)),'Sandbox':def.sandbox.map(n=>buildSandbox(n,off,eng)) };
-  const cfg=CLIENT_CERT; // client-wide rule, identical for every course
+  const items={'Practice Test':def.pt.map(n=>buildPT(n,off,eng)),'Video Course':def.video.map(n=>buildVideo(n,off,eng)),'Lab':def.lab.map(n=>buildLab(n,off,eng)),'Sandbox':def.sandbox.map(n=>buildSandbox(n,off,eng))};
+  const cfg=CLIENT_CERT;
   const videoPct=avg(items['Video Course'].map(i=>i.progress));
-  const ptItems=items['Practice Test']; const ptProgress=avg(ptItems.map(i=>i.progress)); const ptPassed=ptItems.length>0&&ptItems.every(i=>i.passed);
-  const labItems=items['Lab']; const totalLabs=labItems.length; const validatedLabs=labItems.filter(l=>l.validated).length; const labsPct=totalLabs?Math.round(validatedLabs/totalLabs*100):0; const labsMet=labsPct>=cfg.labsPct;
-  const selected=[]; const conditions=[];
+  const ptItems=items['Practice Test'];const ptProgress=avg(ptItems.map(i=>i.progress));const ptPassed=ptItems.length>0&&ptItems.every(i=>i.passed);
+  const labItems=items['Lab'];const totalLabs=labItems.length;const validatedLabs=labItems.filter(l=>l.validated).length;const labsPct=totalLabs?Math.round(validatedLabs/totalLabs*100):0;const labsMet=labsPct>=cfg.labsPct;
+  const selected=[];const conditions=[];
   if(cfg.video){selected.push(videoPct);conditions.push({label:'Video Completion = 100%',met:videoPct>=100,detail:videoPct+'% watched'});}
   if(cfg.pt){selected.push(ptProgress);conditions.push({label:'Practice Test Passed',met:ptPassed,detail:ptPassed?'Passed':'Not yet passed'});}
   if(cfg.labs){selected.push(labsPct);conditions.push({label:'Labs ≥ '+cfg.labsPct+'% validated',met:labsMet,detail:labsPct+'% ('+validatedLabs+'/'+totalLabs+' labs)'});}
-  const progress=avg(selected); const certGenerated=conditions.length>0&&conditions.every(c=>c.met);
-  const all=[].concat(...Object.values(items)); const accDates=all.filter(i=>i.accessed&&i.lastAccessed!=='—').map(i=>i.lastAccessed).sort();
-  const lastAccessed=accDates.length?accDates[accDates.length-1]:'—'; const enrolled=dateStr(off+rand(0,4)); const certDate=certGenerated?lastAccessed:null;
+  const progress=avg(selected);const certGenerated=conditions.length>0&&conditions.every(c=>c.met);
+  const all=[].concat(...Object.values(items));const accDates=all.filter(i=>i.accessed&&i.lastAccessed!=='—').map(i=>i.lastAccessed).sort();
+  const lastAccessed=accDates.length?accDates[accDates.length-1]:'—';const enrolled=dateStr(off+rand(0,4));const certDate=certGenerated?lastAccessed:null;
   const status=certGenerated?'Certified':(lastAccessed!=='—'?'In Progress':'Not Started');
-  return { name:def.name,cat:def.cat,cfg,certType:certLabel(cfg),enrolled,lastAccessed,progress,status,items,conditions,certGenerated,certDate,videoPct,ptProgress,ptPassed,labsPct,labsReq:cfg.labsPct,validatedLabs,totalLabs }; }
+  return{name:def.name,cat:def.cat,cfg,certType:certLabel(cfg),enrolled,lastAccessed,progress,status,items,conditions,certGenerated,certDate,videoPct,ptProgress,ptPassed,labsPct,labsReq:cfg.labsPct,validatedLabs,totalLabs};}
 
 function buildUser(i){
-  const fn=firstNames[i%firstNames.length], ln=lastNames[(i*3)%lastNames.length]; const name=fn+' '+ln, email=(fn+'.'+ln).toLowerCase()+'@acme.com';
-  const off=i*4+rand(0,3); const enrolled=dateStr(off);
-  const r=Math.random(); const eng = r<0.25 ? rand(22,42)/100 : (r<0.72 ? rand(50,72)/100 : rand(80,100)/100); // engagement tier
-  const defs=[...COURSE_DEFS].sort(()=>Math.random()-0.5).slice(0,rand(2,4)); const courses=defs.map(d=>buildCourseInstance(d,off,eng));
-  const cats={}; TYPE_ORDER.forEach(t=>{ const list=[].concat(...courses.map(c=>c.items[t]));
-    const assigned=list.length,utilized=list.filter(x=>x.accessed).length,completed=PRODUCTS[t].completable?list.filter(x=>x.progress>=100).length:0;
-    const progress=PRODUCTS[t].completable?(assigned?Math.round(completed/assigned*100):0):(assigned?Math.round(utilized/assigned*100):0); cats[t]={assigned,utilized,completed,progress}; });
+  const fn=firstNames[i%firstNames.length],ln=lastNames[(i*3)%lastNames.length];const name=fn+' '+ln;
+  const off=i*4+rand(0,3);const enrolled=dateStr(off);
+  const r=Math.random();const eng=r<0.25?rand(22,42)/100:(r<0.72?rand(50,72)/100:rand(80,100)/100);
+  const defs=[...COURSE_DEFS].sort(()=>Math.random()-0.5).slice(0,rand(2,4));const courses=defs.map(d=>buildCourseInstance(d,off,eng));
+  const cats={};TYPE_ORDER.forEach(t=>{const list=[].concat(...courses.map(c=>c.items[t]));const assigned=list.length,utilized=list.filter(x=>x.accessed).length,completed=PRODUCTS[t].completable?list.filter(x=>x.progress>=100).length:0;const progress=PRODUCTS[t].completable?(assigned?Math.round(completed/assigned*100):0):(assigned?Math.round(utilized/assigned*100):0);cats[t]={assigned,utilized,completed,progress};});
   const allItems=[].concat(...courses.map(c=>[].concat(...Object.values(c.items))));
   const assigned=allItems.length,utilized=allItems.filter(x=>x.accessed).length;
-  const completableItems=allItems.filter(x=>PRODUCTS[x.type].completable); const completed=completableItems.filter(x=>x.progress>=100).length;
-  const overall=courses.length?avg(courses.map(c=>c.progress)):0; const certificates=courses.filter(c=>c.certGenerated);
+  const completableItems=allItems.filter(x=>PRODUCTS[x.type].completable);const completed=completableItems.filter(x=>x.progress>=100).length;
+  const overall=courses.length?avg(courses.map(c=>c.progress)):0;const certificates=courses.filter(c=>c.certGenerated);
   const accDates=allItems.filter(x=>x.accessed&&x.lastAccessed!=='—').map(x=>x.lastAccessed);
-  let lastActiveDays=999; if(accDates.length){ const mx=accDates.sort()[accDates.length-1]; lastActiveDays=offsetOf(mx); }
-  if(accDates.length&&chance(0.28)) lastActiveDays=rand(15,80);
-  // login history (day offsets), no logins within recent dormant window
-  const loginProb=Math.min(0.6,0.14+overall/280); const loginDays=[];
-  for(let d=lastActiveDays; d<90; d++){ if(chance(loginProb)) loginDays.push(d); } if(loginDays.length===0) loginDays.push(lastActiveDays);
+  let lastActiveDays=999;if(accDates.length){const mx=accDates.sort()[accDates.length-1];lastActiveDays=offsetOf(mx);}
+  if(accDates.length&&chance(0.28))lastActiveDays=rand(15,80);
+  const loginProb=Math.min(0.6,0.14+overall/280);const loginDays=[];
+  for(let d=lastActiveDays;d<90;d++){if(chance(loginProb))loginDays.push(d);}if(loginDays.length===0)loginDays.push(lastActiveDays);
   const loginSet=new Set(loginDays);
-  // PT metrics
-  const ptItemsAll=[].concat(...courses.map(c=>c.items['Practice Test']));
-  const ptAttempted=ptItemsAll.filter(x=>x.accessed); const ptPassRate=ptAttempted.length?Math.round(ptAttempted.filter(x=>x.passed).length/ptAttempted.length*100):0;
-  const labItemsAll=[].concat(...courses.map(c=>c.items['Lab'])); const labAcc=labItemsAll.filter(x=>x.accessed); const labsRate=labAcc.length?Math.round(labAcc.filter(x=>x.validated).length/labAcc.length*100):0;
-  const compositeScore=Math.round(0.45*overall + 0.20*Math.min(100,certificates.length/Math.max(1,courses.length)*100) + 0.20*ptPassRate + 0.15*labsRate);
-  return { id:i,name,email,enrolled,enrollOffset:off,courses,cats,lastActiveDays,loginSet,loginDays,
-    assigned,utilized,completed,overall,certificates,certCount:certificates.length,ptPassRate,labsRate,compositeScore,color:avatarColors[i%avatarColors.length] };
+  const ptAll=[].concat(...courses.map(c=>c.items['Practice Test']));const ptAcc=ptAll.filter(x=>x.accessed);const ptPassRate=ptAcc.length?Math.round(ptAcc.filter(x=>x.passed).length/ptAcc.length*100):0;
+  const labAll=[].concat(...courses.map(c=>c.items['Lab']));const labAcc=labAll.filter(x=>x.accessed);const labsRate=labAcc.length?Math.round(labAcc.filter(x=>x.validated).length/labAcc.length*100):0;
+  const compositeScore=Math.round(0.45*overall+0.20*Math.min(100,certificates.length/Math.max(1,courses.length)*100)+0.20*ptPassRate+0.15*labsRate);
+  return{id:i,name,email:'',enrolled,enrollOffset:off,courses,cats,lastActiveDays,loginSet,assigned,utilized,completed,overall,certificates,certCount:certificates.length,ptPassRate,labsRate,compositeScore,color:avatarColors[i%avatarColors.length]};
 }
 const USERS=Array.from({length:100},(_,i)=>buildUser(i));
-(function(){ const seen={}; USERS.forEach(u=>{ const base=u.name.toLowerCase().replace(/\s+/g,'.'); let e=base+'@acme.com',n=1;
-  while(seen[e]){ n++; e=base+n+'@acme.com'; } seen[e]=1; u.email=e; }); })();
+(function(){const seen={};USERS.forEach(u=>{const base=u.name.toLowerCase().replace(/\s+/g,'.');let e=base+'@acme.com',n=1;while(seen[e]){n++;e=base+n+'@acme.com';}seen[e]=1;u.email=e;});})();
 USERS.sort((a,b)=>a.enrollOffset-b.enrollOffset);
 
-/* ===== STATIC AGGREGATES ===== */
-const ORG=(()=>{ const byType={}; TYPE_ORDER.forEach(t=>byType[t]={assigned:0,utilized:0,completed:0});
+const ORG=(()=>{const byType={};TYPE_ORDER.forEach(t=>byType[t]={assigned:0,utilized:0,completed:0});
   let assigned=0,utilized=0,completed=0,completableAssigned=0,courseInstances=0,certsIssued=0;
-  USERS.forEach(u=>{ u.courses.forEach(c=>{ courseInstances++; if(c.certGenerated)certsIssued++;
-    TYPE_ORDER.forEach(t=>c.items[t].forEach(it=>{ byType[t].assigned++; assigned++; if(it.accessed){byType[t].utilized++;utilized++;}
-      if(PRODUCTS[t].completable){completableAssigned++; if(it.progress>=100){byType[t].completed++;completed++;}} })); }); });
-  const active=USERS.filter(u=>u.lastActiveDays<=14).length; const avgProgress=avg(USERS.map(u=>u.overall));
-  return { byType,assigned,utilized,completed,completableAssigned,active,courseInstances,certsIssued,
-    utilPct:Math.round(utilized/assigned*100),compPct:Math.round(completed/completableAssigned*100),
-    activePct:Math.round(active/USERS.length*100),avgProgress,certRate:Math.round(certsIssued/courseInstances*100),
-    totalCourseEnroll:USERS.reduce((s,u)=>s+u.courses.length,0) }; })();
+  USERS.forEach(u=>{u.courses.forEach(c=>{courseInstances++;if(c.certGenerated)certsIssued++;TYPE_ORDER.forEach(t=>c.items[t].forEach(it=>{byType[t].assigned++;assigned++;if(it.accessed){byType[t].utilized++;utilized++;}if(PRODUCTS[t].completable){completableAssigned++;if(it.progress>=100){byType[t].completed++;completed++;}}}));});});
+  const active=USERS.filter(u=>u.lastActiveDays<=14).length;const avgProgress=avg(USERS.map(u=>u.overall));
+  return{byType,assigned,utilized,completed,completableAssigned,active,courseInstances,certsIssued,utilPct:Math.round(utilized/assigned*100),compPct:Math.round(completed/completableAssigned*100),activePct:Math.round(active/USERS.length*100),avgProgress,certRate:Math.round(certsIssued/courseInstances*100)};})();
 
-const COURSE_AGG=(()=>{ const map={};
-  USERS.forEach(u=>u.courses.forEach(c=>{ if(!map[c.name])map[c.name]={name:c.name,cat:c.cat,certType:c.certType,learners:0,progSum:0,certs:0};
-    map[c.name].learners++; map[c.name].progSum+=c.progress; if(c.certGenerated)map[c.name].certs++; }));
-  return Object.values(map).map(m=>({...m,avg:Math.round(m.progSum/m.learners),certRate:Math.round(m.certs/m.learners*100)})).sort((a,b)=>b.learners-a.learners); })();
+const COURSE_AGG=(()=>{const map={};USERS.forEach(u=>u.courses.forEach(c=>{if(!map[c.name])map[c.name]={name:c.name,cat:c.cat,learners:0,progSum:0,certs:0};map[c.name].learners++;map[c.name].progSum+=c.progress;if(c.certGenerated)map[c.name].certs++;}));
+  return Object.values(map).map(m=>({...m,avg:Math.round(m.progSum/m.learners),certRate:Math.round(m.certs/m.learners*100)})).sort((a,b)=>b.learners-a.learners);})();
+const PT_RECORDS=[];USERS.forEach(u=>u.courses.forEach(c=>c.items['Practice Test'].forEach(it=>{if(it.accessed)PT_RECORDS.push({user:u,pt:it.name,attempts:it.attempts,best:it.passPct,passed:it.passed,lastAccessed:it.lastAccessed});})));
+const LAB_RECORDS=[];USERS.forEach(u=>u.courses.forEach(c=>c.items['Lab'].forEach(it=>{if(it.attempts>0)LAB_RECORDS.push({user:u,lab:it.name,attempts:it.attempts,success:it.successful,validated:it.validated,lastAccessed:it.lastAccessed});})));
+function groupBy(rec,key){const m={};rec.forEach(r=>{(m[r[key]]=m[r[key]]||[]).push(r);});return m;}
+const PT_AGG=Object.entries(groupBy(PT_RECORDS,'pt')).map(([name,rs])=>({name,users:rs,userCount:rs.length,totalAttempts:rs.reduce((s,r)=>s+r.attempts,0),avgBest:avg(rs.map(r=>r.best)),passRate:Math.round(rs.filter(r=>r.passed).length/rs.length*100)}));
+const LAB_AGG=Object.entries(groupBy(LAB_RECORDS,'lab')).map(([name,rs])=>{const ta=rs.reduce((s,r)=>s+r.attempts,0),ts=rs.reduce((s,r)=>s+r.success,0);return{name,users:rs,userCount:rs.length,totalAttempts:ta,totalSuccess:ts,passRatio:ta?Math.round(ts/ta*100):0};});
+function courseUsers(nm){const out=[];USERS.forEach(u=>{const c=u.courses.find(x=>x.name===nm);if(c)out.push({user:u,course:c});});return out;}
 
-// PT / Lab per-(user,item) records
-const PT_RECORDS=[]; USERS.forEach(u=>u.courses.forEach(c=>c.items['Practice Test'].forEach(it=>{ if(it.accessed) PT_RECORDS.push({user:u,pt:it.name,attempts:it.attempts,best:it.passPct,passed:it.passed,lastAccessed:it.lastAccessed}); })));
-const LAB_RECORDS=[]; USERS.forEach(u=>u.courses.forEach(c=>c.items['Lab'].forEach(it=>{ if(it.attempts>0) LAB_RECORDS.push({user:u,lab:it.name,attempts:it.attempts,success:it.successful,ratio:Math.round(it.successful/it.attempts*100),validated:it.validated,lastAccessed:it.lastAccessed}); })));
-
-// CONTENT-LEVEL aggregates (by item name, across all users)
-function groupBy(records,key){ const m={}; records.forEach(r=>{ const k=r[key]; (m[k]=m[k]||[]).push(r); }); return m; }
-const PT_AGG=Object.entries(groupBy(PT_RECORDS,'pt')).map(([name,rs])=>({
-  name, users:rs, userCount:rs.length, totalAttempts:rs.reduce((s,r)=>s+r.attempts,0),
-  avgBest:avg(rs.map(r=>r.best)), passRate:Math.round(rs.filter(r=>r.passed).length/rs.length*100) }));
-const LAB_AGG=Object.entries(groupBy(LAB_RECORDS,'lab')).map(([name,rs])=>{ const ta=rs.reduce((s,r)=>s+r.attempts,0), ts=rs.reduce((s,r)=>s+r.success,0);
-  return { name, users:rs, userCount:rs.length, totalAttempts:ta, totalSuccess:ts, passRatio:ta?Math.round(ts/ta*100):0 }; });
-// course -> enrolled users (with that course instance)
-function courseUsers(courseName){ const out=[]; USERS.forEach(u=>{ const c=u.courses.find(x=>x.name===courseName); if(c) out.push({user:u,course:c}); }); return out; }
-
-/* period filter: preset days OR custom date window */
 let period={mode:'preset',days:30};
-function inPeriod(off){ return period.mode==='preset' ? off<period.days : (off>=period.toOff && off<=period.fromOff); }
-function periodOffsets(){ const arr=[]; for(let d=0; d<=400; d++){ if(inPeriod(d)) arr.push(d); } return arr; }
+function inPeriod(off){return period.mode==='preset'?off<period.days:(off>=period.toOff&&off<=period.fromOff);}
+function periodOffsets(){const a=[];for(let d=0;d<=400;d++)if(inPeriod(d))a.push(d);return a;}
+function activeInPeriod(){return USERS.filter(u=>[...u.loginSet].some(d=>inPeriod(d))).length;}
+function loginsInPeriod(){let t=0;USERS.forEach(u=>{[...u.loginSet].forEach(d=>{if(inPeriod(d))t++;});});return t;}
+function progressColor(p){return p>=75?cssVar('--success'):p>=40?cssVar('--warning'):cssVar('--danger');}
 
-/* ===== KPI + ORG RENDER ===== */
-function activeInPeriod(){ return USERS.filter(u=>[...u.loginSet].some(d=>inPeriod(d))).length; }
-function loginsInPeriod(){ let total=0; USERS.forEach(u=>{ [...u.loginSet].forEach(d=>{ if(inPeriod(d)) total++; }); }); return total; }
+/* ---- charts ---- */
+const chartRegistry={};
+function makeDoughnut(id,pct,color,cut){const ctx=document.getElementById(id);if(!ctx)return;if(chartRegistry[id])chartRegistry[id].destroy();
+  chartRegistry[id]=new Chart(ctx,{type:'doughnut',data:{datasets:[{data:[pct,Math.max(0,100-pct)],backgroundColor:[color,cssVar('--surface-2')],borderWidth:0}]},options:{cutout:(cut||14),responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{enabled:false}}}});}
+function buildBarChart(){const ctx=document.getElementById('barChart');if(!ctx)return;if(chartRegistry.bar)chartRegistry.bar.destroy();const labels=TYPE_ORDER.map(t=>PRODUCTS[t].label);const util=TYPE_ORDER.map(t=>{const d=ORG.byType[t];return d.assigned?Math.round(d.utilized/d.assigned*100):0;});const comp=TYPE_ORDER.map(t=>{const d=ORG.byType[t];return PRODUCTS[t].completable&&d.assigned?Math.round(d.completed/d.assigned*100):0;});const data={labels:labels,datasets:[{label:'Utilization %',data:util,backgroundColor:cssVar('--accent-video'),borderRadius:5},{label:'Completion %',data:comp,backgroundColor:cssVar('--primary'),borderRadius:5}]};const opts={responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false},ticks:{color:cssVar('--text-muted')}},y:{grid:{color:cssVar('--border')},ticks:{color:cssVar('--text-muted'),callback:function(v){return v+'%';}},beginAtZero:true,max:100}},plugins:{legend:{position:'top',labels:{color:cssVar('--text-muted'),usePointStyle:true,padding:16}}}};chartRegistry.bar=new Chart(ctx,{type:'bar',data:data,options:opts});}
+function renderLoginTrends(){const offs=periodOffsets().sort((a,b)=>b-a);const days=[],counts=[];offs.forEach(d=>{days.push(dateStr(d));let c=0;USERS.forEach(u=>{if(u.loginSet.has(d))c++;});counts.push(c);});const peak=Math.max(...counts,0);const avgD=counts.length?Math.round(counts.reduce((s,x)=>s+x,0)/counts.length):0;document.getElementById('loginChips').innerHTML=`<div class="chip"><div class="k">Total Logins</div><div class="v">${loginsInPeriod()}</div></div><div class="chip"><div class="k">Peak / Day</div><div class="v">${peak}</div></div><div class="chip"><div class="k">Avg / Day</div><div class="v">${avgD}</div></div><div class="chip"><div class="k">Active Users</div><div class="v">${activeInPeriod()}</div></div>`;const ctx=document.getElementById('loginChart');if(!ctx)return;if(chartRegistry.login)chartRegistry.login.destroy();const g=ctx.getContext('2d').createLinearGradient(0,0,0,240);g.addColorStop(0,'rgba(226,84,44,.35)');g.addColorStop(1,'rgba(226,84,44,0)');const step=Math.max(1,Math.ceil(days.length/8));const data={labels:days.map(fmtShort),datasets:[{label:'Unique logins',data:counts,borderColor:cssVar('--primary'),backgroundColor:g,fill:true,tension:.35,pointRadius:0,borderWidth:2.5}]};const opts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:cssVar('--text-muted'),maxRotation:0,autoSkip:true,callback:function(v,i){return i%step===0?this.getLabelForValue(v):'';}}},y:{grid:{color:cssVar('--border')},ticks:{color:cssVar('--text-muted'),precision:0},beginAtZero:true}}};chartRegistry.login=new Chart(ctx,{type:'line',data:data,options:opts});}
 
-function renderKPIs(){
-  const activeP=activeInPeriod(); const atRisk=USERS.filter(u=>u.overall<40||u.lastActiveDays>21).length;
-  const cards=[
-    {k:'Total Learners',v:USERS.length,d:'enrolled in workspace'},
-    {k:'Active · Period',v:activeP,d:activeP+' logged in',cls:'green'},
-    {k:'Course Completion',v:ORG.compPct+'%',d:'products completed'},
-    {k:'Certificates',v:ORG.certsIssued,d:ORG.certRate+'% of enrollments',cls:'gold'},
-    {k:'Avg. Progress',v:ORG.avgProgress+'%',d:'per learner'},
-    {k:'Need Attention',v:atRisk,d:'low / inactive',cls:'red'}
-  ];
-  document.getElementById('kpiGrid').innerHTML=cards.map(c=>`<div class="card kpi"><div class="k">${c.k}</div><div class="v ${c.cls||''}">${c.v}</div><div class="d">${c.d}</div></div>`).join('');
-}
-
-function renderProducts(){ const grid=document.getElementById('productGrid'); grid.innerHTML='';
-  TYPE_ORDER.forEach(type=>{ const meta=PRODUCTS[type],d=ORG.byType[type];
-    const utilPct=d.assigned?Math.round(d.utilized/d.assigned*100):0, compPct=d.assigned?Math.round(d.completed/d.assigned*100):0;
-    const ringPct=meta.completable?compPct:utilPct, ringLabel=meta.completable?'Completed':'Utilized';
-    const el=document.createElement('div'); el.className='card pcard'; el.style.setProperty('--pc-accent',cssVar(meta.color));
+/* ---- KPIs & products ---- */
+function renderKPIs(){const atRisk=USERS.filter(u=>u.overall<60).length;
+  const cards=[{k:'Total Learners',v:USERS.length,d:'enrolled in workspace'},{k:'Active · Period',v:activeInPeriod(),d:'logged in this period',cls:'green'},{k:'Course Completion',v:ORG.compPct+'%',d:'products completed'},{k:'Certificates',v:ORG.certsIssued,d:ORG.certRate+'% of enrolments',cls:'gold'},{k:'Avg. Progress',v:ORG.avgProgress+'%',d:'per learner'},{k:'Need Attention',v:atRisk,d:'below 60% progress',cls:'red'}];
+  document.getElementById('kpiGrid').innerHTML=cards.map(c=>`<div class="card kpi"><div class="k">${c.k}</div><div class="v ${c.cls||''}">${c.v}</div><div class="d">${c.d}</div></div>`).join('');}
+function renderProducts(){const grid=document.getElementById('productGrid');grid.innerHTML='';
+  TYPE_ORDER.forEach(type=>{const meta=PRODUCTS[type],d=ORG.byType[type];const utilPct=d.assigned?Math.round(d.utilized/d.assigned*100):0,compPct=d.assigned?Math.round(d.completed/d.assigned*100):0;const ringPct=meta.completable?compPct:utilPct,ringLabel=meta.completable?'Completed':'Utilized';
+    const el=document.createElement('div');el.className='card pcard';el.style.setProperty('--pc-accent',cssVar(meta.color));
     el.innerHTML=`<div class="pcard-head"><span class="dot" style="background:var(${meta.color})"></span><h4>${meta.label}</h4>${meta.completable?'':'<span class="tag">Util only</span>'}</div>
       <div class="pcard-body"><div class="pchart"><canvas id="pc-${meta.key}"></canvas><div class="center"><b>${ringPct}%</b><small>${ringLabel}</small></div></div>
-      <div class="pstats"><div class="pstat"><div class="k">Assigned</div><div class="v">${d.assigned}</div></div>
-      <div class="pstat"><div class="k">Utilized</div><div class="v">${d.utilized}</div></div>
-      <div class="pstat"><div class="k">Util %</div><div class="v">${utilPct}%</div></div>
-      ${meta.completable?`<div class="pstat"><div class="k">Completed</div><div class="v">${d.completed}</div></div>`:`<div class="pstat"><div class="k">Completed</div><div class="v" style="color:var(--text-soft)">N/A</div></div>`}</div></div>`;
-    grid.appendChild(el); });
-  TYPE_ORDER.forEach(type=>{ const meta=PRODUCTS[type],d=ORG.byType[type]; const utilPct=d.assigned?Math.round(d.utilized/d.assigned*100):0,compPct=d.assigned?Math.round(d.completed/d.assigned*100):0;
-    makeDoughnut('pc-'+meta.key,meta.completable?compPct:utilPct,cssVar(meta.color),10); }); }
+      <div class="pstats"><div class="pstat"><div class="k">Assigned</div><div class="v">${d.assigned}</div></div><div class="pstat"><div class="k">Utilized</div><div class="v">${d.utilized}</div></div><div class="pstat"><div class="k">Util %</div><div class="v">${utilPct}%</div></div>${meta.completable?`<div class="pstat"><div class="k">Completed</div><div class="v">${d.completed}</div></div>`:`<div class="pstat"><div class="k">Completed</div><div class="v" style="color:var(--text-soft)">N/A</div></div>`}</div></div>`;
+    grid.appendChild(el);});
+  TYPE_ORDER.forEach(type=>{const meta=PRODUCTS[type],d=ORG.byType[type];const utilPct=d.assigned?Math.round(d.utilized/d.assigned*100):0,compPct=d.assigned?Math.round(d.completed/d.assigned*100):0;makeDoughnut('pc-'+meta.key,meta.completable?compPct:utilPct,cssVar(meta.color),'72%');});}
 
-function renderPopular(){ const max=Math.max(...COURSE_AGG.map(c=>c.learners));
-  document.getElementById('popularCourses').innerHTML=COURSE_AGG.slice(0,5).map(c=>`
-    <div class="hbar"><div class="top"><span class="nm">${c.name}</span><span class="val"><span class="count-link" data-course="${encodeURIComponent(c.name)}">${c.learners} learners</span></span></div>
-      <div class="track"><span style="width:${Math.round(c.learners/max*100)}%"></span></div></div>`).join('');
-  document.querySelectorAll('#popularCourses .count-link').forEach(b=>b.addEventListener('click',()=>openCoursePopup(decodeURIComponent(b.dataset.course)))); }
+/* ---- ranking sections (5 rows + view more) ---- */
+function renderPopular(){const max=Math.max(...COURSE_AGG.map(c=>c.learners));
+  document.getElementById('popularCourses').innerHTML=COURSE_AGG.slice(0,5).map(c=>`<div class="hbar"><div class="top"><span class="nm">${c.name}</span><span class="val"><span class="count-link" data-course="${encodeURIComponent(c.name)}">${c.learners} learners</span></span></div><div class="track"><span style="width:${Math.round(c.learners/max*100)}%"></span></div></div>`).join('');
+  document.querySelectorAll('#popularCourses .count-link').forEach(b=>b.addEventListener('click',()=>openCoursePopup(decodeURIComponent(b.dataset.course))));}
+function rankRow(i,u,rightHtml,clickable){return `<div class="rankrow ${clickable?'clickable':''} ${i<3?'top'+(i+1):''}" ${clickable?`data-uid="${u.id}"`:''}><div class="rk">${i+1}</div><div class="av" style="background:${u.color}">${initials(u.name)}</div><div class="who"><div class="n">${u.name}${clickable?' ›':''}</div><div class="e">${u.email}</div></div>${rightHtml}</div>`;}
+function renderTopPerformers(){const list=[...USERS].sort((a,b)=>b.compositeScore-a.compositeScore).slice(0,5);const el=document.getElementById('topPerformers');
+  el.innerHTML=list.map((u,i)=>`<div class="rankrow clickable ${i<3?'top'+(i+1):''}" data-uid="${u.id}"><div class="rk">${i+1}</div><div class="av" style="background:${u.color}">${initials(u.name)}</div><div class="who"><div class="n">${u.name} ›</div><div class="e">${u.certCount} certs · ${u.overall}% progress · PT ${u.ptPassRate}%</div></div><div class="score">${u.compositeScore}<small>SCORE</small></div></div>`).join('');
+  el.querySelectorAll('.rankrow').forEach(r=>r.addEventListener('click',()=>gotoUserReport(+r.dataset.uid)));}
+function ptRowsHtml(list,mode){return list.map((r,i)=>mode==='top'?`<tr><td><span class="rk-cell">${i+1}</span></td><td style="font-weight:600">${r.name}</td><td><span class="count-link" data-pt="${encodeURIComponent(r.name)}">${r.userCount} users</span></td><td>${r.totalAttempts}</td><td><span class="badge passed">${r.passRate}%</span></td></tr>`:`<tr><td><span class="rk-cell">${i+1}</span></td><td style="font-weight:600">${r.name}</td><td><span class="count-link" data-pt="${encodeURIComponent(r.name)}">${r.userCount} users</span></td><td><span class="badge ${r.avgBest>=70?'passed':'failed'}">${r.avgBest}%</span></td><td>${r.passRate}%</td></tr>`).join('');}
+function wirePT(scope){document.querySelectorAll(scope+' .count-link').forEach(b=>b.addEventListener('click',()=>openPTPopup(decodeURIComponent(b.dataset.pt))));}
+function renderPT(){const top=[...PT_AGG].sort((a,b)=>b.passRate-a.passRate||b.avgBest-a.avgBest).slice(0,5);document.getElementById('ptTop').innerHTML=ptRowsHtml(top,'top');
+  const low=[...PT_AGG].sort((a,b)=>a.avgBest-b.avgBest).slice(0,5);document.getElementById('ptLow').innerHTML=ptRowsHtml(low,'low');wirePT('#ptTop');wirePT('#ptLow');}
+function labRowsHtml(list){return list.map((r,i)=>`<tr><td><span class="rk-cell">${i+1}</span></td><td style="font-weight:600">${r.name}</td><td><span class="count-link" data-lab="${encodeURIComponent(r.name)}">${r.userCount} users</span></td><td>${r.totalAttempts}</td><td><div class="mini-bar"><div class="track"><span style="width:${r.passRatio}%;background:${r.passRatio>=50?cssVar('--success'):cssVar('--warning')}"></span></div><b>${r.passRatio}%</b></div></td></tr>`).join('');}
+function renderLabs(){const top=[...LAB_AGG].sort((a,b)=>b.totalAttempts-a.totalAttempts||b.passRatio-a.passRatio).slice(0,5);document.getElementById('labsPerf').innerHTML=labRowsHtml(top);
+  document.querySelectorAll('#labsPerf .count-link').forEach(b=>b.addEventListener('click',()=>openLabPopup(decodeURIComponent(b.dataset.lab))));}
+function renderCertLeaders(){const list=[...USERS].filter(u=>u.certCount>0).sort((a,b)=>b.certCount-a.certCount).slice(0,5);const el=document.getElementById('certLeaders');
+  if(list.length===0){el.innerHTML='<div class="empty">No certificates issued yet.</div>';return;}
+  el.innerHTML=list.map((u,i)=>rankRow(i,u,`<div class="score" style="color:var(--gold)">🏅 ${u.certCount}</div>`,true)).join('');
+  el.querySelectorAll('.rankrow').forEach(r=>r.addEventListener('click',()=>gotoUserReport(+r.dataset.uid)));}
+function needList(){return USERS.filter(u=>u.overall<60).sort((a,b)=>a.overall-b.overall);}
+function naRowHtml(u){const band=u.overall<35?'Critical (&lt;35%)':(u.overall<50?'At risk (&lt;50%)':'Below target (&lt;60%)');const cls=u.overall<50?'pill':'pill warn';
+  return `<tr><td><input type="checkbox" class="cb na-cb" data-uid="${u.id}"></td><td><div class="user-cell"><div class="avatar" style="background:${u.color}">${initials(u.name)}</div><span class="nm">${u.name}</span></div></td><td style="color:var(--text-muted)">${u.email}</td><td><div class="mini-bar"><div class="track"><span style="width:${u.overall}%;background:${progressColor(u.overall)}"></span></div><b>${u.overall}%</b></div></td><td>${u.courses.length}</td><td class="reason"><span class="${cls}">${band}</span></td></tr>`;}
+function renderNeedAttention(){const list=needList().slice(0,5);const body=document.getElementById('needAttention');
+  if(list.length===0){body.innerHTML='<tr><td colspan="6"><div class="empty">No learners below the progress threshold. 🎉</div></td></tr>';return;}
+  body.innerHTML=list.map(naRowHtml).join('');document.getElementById('naSelectAll').checked=false;}
 
-function renderTopPerformers(){ const list=[...USERS].sort((a,b)=>b.compositeScore-a.compositeScore).slice(0,6);
-  const el=document.getElementById('topPerformers');
-  el.innerHTML=list.map((u,i)=>`
-    <div class="rankrow clickable ${i<3?'top'+(i+1):''}" data-uid="${u.id}"><div class="rk">${i+1}</div>
-      <div class="av" style="background:${u.color}">${initials(u.name)}</div>
-      <div class="who"><div class="n">${u.name} ›</div><div class="e">${u.certCount} certs · ${u.overall}% progress · PT ${u.ptPassRate}%</div></div>
-      <div class="score">${u.compositeScore}<small>SCORE</small></div></div>`).join('');
-  el.querySelectorAll('.rankrow').forEach(r=>r.addEventListener('click',()=>gotoUserReport(+r.dataset.uid))); }
+/* ---- popups & view-more ---- */
+function usersTable(cols,rows){return `<div class="table-wrap"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`;}
+function userLink(u){return `<div class="user-cell"><div class="avatar" style="background:${u.color}">${initials(u.name)}</div><span class="nm count-link" data-goto="${u.id}">${u.name}</span></div>`;}
+function wireGoto(){document.querySelectorAll('#modalMount [data-goto]').forEach(b=>b.addEventListener('click',()=>{closeModal();gotoUserReport(+b.dataset.goto);}));}
+function openPTPopup(name){const a=PT_AGG.find(x=>x.name===name);const rows=[...a.users].sort((x,y)=>y.best-x.best).map(r=>`<tr><td>${userLink(r.user)}</td><td style="color:var(--text-muted)">${r.user.email}</td><td>${r.attempts}</td><td><b>${r.best}%</b></td><td><span class="badge ${r.passed?'passed':'failed'}">${r.passed?'Passed':'Not passed'}</span></td></tr>`).join('');
+  showModal(`<div class="modal-head"><span class="tag" style="background:var(--accent-pt)">Practice Test</span><div><h3>${name}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${a.userCount} users · ${a.totalAttempts} attempts · ${a.passRate}% pass rate</div></div><button class="x" id="modalClose">×</button></div><div class="modal-body">${usersTable(['User','Email','Attempts','Best Score','Result'],rows)}</div>`,'wide');wireGoto();}
+function openLabPopup(name){const a=LAB_AGG.find(x=>x.name===name);const rows=[...a.users].sort((x,y)=>y.attempts-x.attempts).map(r=>`<tr><td>${userLink(r.user)}</td><td style="color:var(--text-muted)">${r.user.email}</td><td>${r.attempts}</td><td>${r.success}</td><td><span class="badge ${r.validated?'validated':'failed'}">${r.validated?'Validated':'Not validated'}</span></td></tr>`).join('');
+  showModal(`<div class="modal-head"><span class="tag" style="background:var(--accent-lab)">Lab</span><div><h3>${name}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${a.userCount} users · ${a.totalAttempts} attempts · ${a.passRatio}% pass ratio</div></div><button class="x" id="modalClose">×</button></div><div class="modal-body">${usersTable(['User','Email','Attempts','Successful','Validation'],rows)}</div>`,'wide');wireGoto();}
+function openCoursePopup(name){const list=courseUsers(name);const rows=[...list].sort((a,b)=>b.course.progress-a.course.progress).map(({user,course})=>`<tr><td>${userLink(user)}</td><td style="color:var(--text-muted)">${user.email}</td><td><div class="mini-bar"><div class="track"><span style="width:${course.progress}%;background:${progressColor(course.progress)}"></span></div><b>${course.progress}%</b></div></td><td><span class="badge ${statusClass(course.status)}">${course.status}</span></td><td>${course.certGenerated?'<span class="badge generated">🏅 Yes</span>':'—'}</td></tr>`).join('');
+  showModal(`<div class="modal-head"><span class="tag" style="background:var(--primary)">Course</span><div><h3>${name}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${list.length} enrolled learners</div></div><button class="x" id="modalClose">×</button></div><div class="modal-body">${usersTable(['User','Email','Progress','Status','Certificate'],rows)}</div>`,'wide');wireGoto();}
+function listModal(title,sub,head,body){showModal(`<div class="modal-head"><div><h3>${title}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${sub}</div></div><button class="x" id="modalClose">×</button></div><div class="modal-body"><div class="table-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div></div>`,'wide');}
+document.getElementById('vmPopular').addEventListener('click',()=>{const max=Math.max(...COURSE_AGG.map(c=>c.learners));listModal('All Courses by Popularity',COURSE_AGG.length+' courses',
+  '<tr><th>#</th><th>Course</th><th>Learners</th><th>Avg Progress</th><th>Certified</th></tr>',
+  COURSE_AGG.map((c,i)=>`<tr><td><span class="rk-cell">${i+1}</span></td><td style="font-weight:600">${c.name}</td><td><span class="count-link" data-course="${encodeURIComponent(c.name)}">${c.learners}</span></td><td><div class="mini-bar"><div class="track"><span style="width:${c.avg}%;background:${progressColor(c.avg)}"></span></div><b>${c.avg}%</b></div></td><td>${c.certs} (${c.certRate}%)</td></tr>`).join(''));
+  document.querySelectorAll('#modalMount .count-link').forEach(b=>b.addEventListener('click',()=>openCoursePopup(decodeURIComponent(b.dataset.course))));});
+document.getElementById('vmTop').addEventListener('click',()=>{const list=[...USERS].sort((a,b)=>b.compositeScore-a.compositeScore);listModal('All Learners by Performance',list.length+' learners ranked by composite score',
+  '<tr><th>#</th><th>Learner</th><th>Email</th><th>Score</th><th>Certs</th><th>Overall</th></tr>',
+  list.map((u,i)=>`<tr><td><span class="rk-cell">${i+1}</span></td><td>${userLink(u)}</td><td style="color:var(--text-muted)">${u.email}</td><td><b>${u.compositeScore}</b></td><td>${u.certCount}</td><td>${u.overall}%</td></tr>`).join(''));wireGoto();});
+document.getElementById('vmPTtop').addEventListener('click',()=>{const list=[...PT_AGG].sort((a,b)=>b.passRate-a.passRate||b.avgBest-a.avgBest);listModal('All Practice Tests — by Pass Rate',PT_AGG.length+' tests','<tr><th>#</th><th>Practice Test</th><th>Users</th><th>Attempts</th><th>Pass Rate</th></tr>',ptRowsHtml(list,'top'));wirePT('#modalMount');});
+document.getElementById('vmPTlow').addEventListener('click',()=>{const list=[...PT_AGG].sort((a,b)=>a.avgBest-b.avgBest);listModal('All Practice Tests — Lowest Scores First',PT_AGG.length+' tests','<tr><th>#</th><th>Practice Test</th><th>Users</th><th>Avg Score</th><th>Pass Rate</th></tr>',ptRowsHtml(list,'low'));wirePT('#modalMount');});
+document.getElementById('vmLabs').addEventListener('click',()=>{const list=[...LAB_AGG].sort((a,b)=>b.totalAttempts-a.totalAttempts||b.passRatio-a.passRatio);listModal('All Labs — by Validation Attempts',LAB_AGG.length+' labs','<tr><th>#</th><th>Lab Name</th><th>Users</th><th>Attempts</th><th>Pass Ratio</th></tr>',labRowsHtml(list));document.querySelectorAll('#modalMount .count-link').forEach(b=>b.addEventListener('click',()=>openLabPopup(decodeURIComponent(b.dataset.lab))));});
+document.getElementById('vmCert').addEventListener('click',()=>{const list=[...USERS].filter(u=>u.certCount>0).sort((a,b)=>b.certCount-a.certCount);listModal('All Certificate Earners',list.length+' learners with certificates','<tr><th>#</th><th>Learner</th><th>Email</th><th>Certificates</th></tr>',list.map((u,i)=>`<tr><td><span class="rk-cell">${i+1}</span></td><td>${userLink(u)}</td><td style="color:var(--text-muted)">${u.email}</td><td style="color:var(--gold);font-weight:700">🏅 ${u.certCount}</td></tr>`).join(''));wireGoto();});
+document.getElementById('vmAttention').addEventListener('click',()=>{const list=needList();listModal('All Learners Needing Attention',list.length+' learners below 60% overall progress','<tr><th>Learner</th><th>Email</th><th>Overall</th><th>Courses</th></tr>',list.map(u=>`<tr><td>${userLink(u)}</td><td style="color:var(--text-muted)">${u.email}</td><td><span class="badge ${u.overall<50?'failed':'progress'}">${u.overall}%</span></td><td>${u.courses.length}</td></tr>`).join(''));wireGoto();});
 
-function renderPT(){
-  const top=[...PT_AGG].sort((a,b)=>b.passRate-a.passRate||b.avgBest-a.avgBest).slice(0,5);
-  document.getElementById('ptTop').innerHTML=top.map((r,i)=>`<tr><td><span class="rk-cell">${i+1}</span></td>
-    <td style="font-weight:600;white-space:normal;max-width:190px">${r.name}</td>
-    <td><span class="count-link" data-pt="${encodeURIComponent(r.name)}">${r.userCount} users</span></td>
-    <td>${r.totalAttempts}</td><td><span class="badge passed">${r.passRate}%</span></td></tr>`).join('');
-  const low=[...PT_AGG].sort((a,b)=>a.avgBest-b.avgBest).slice(0,5);
-  document.getElementById('ptLow').innerHTML=low.map((r,i)=>`<tr><td><span class="rk-cell">${i+1}</span></td>
-    <td style="font-weight:600;white-space:normal;max-width:170px">${r.name}</td>
-    <td><span class="count-link" data-pt="${encodeURIComponent(r.name)}">${r.userCount} users</span></td>
-    <td><span class="badge ${r.avgBest>=70?'passed':'failed'}">${r.avgBest}%</span></td>
-    <td>${r.passRate}%</td></tr>`).join('');
-  document.querySelectorAll('#ptTop .count-link, #ptLow .count-link').forEach(b=>b.addEventListener('click',()=>openPTPopup(decodeURIComponent(b.dataset.pt)))); }
+function gotoUserReport(uid){const u=USERS.find(x=>x.id===uid);if(!u)return;closeModal();document.querySelector('.tab[data-tab="users"]').click();document.getElementById('userSearch').value=u.name;applyFilters();openUser(uid);}
 
-function renderLabs(){ const top=[...LAB_AGG].sort((a,b)=>b.totalAttempts-a.totalAttempts||b.passRatio-a.passRatio).slice(0,8);
-  document.getElementById('labsPerf').innerHTML=top.map((r,i)=>`<tr><td><span class="rk-cell">${i+1}</span></td>
-    <td style="font-weight:600;white-space:normal;max-width:190px">${r.name}</td>
-    <td><span class="count-link" data-lab="${encodeURIComponent(r.name)}">${r.userCount} users</span></td>
-    <td>${r.totalAttempts}</td>
-    <td><div class="mini-bar"><div class="track"><span style="width:${r.passRatio}%;background:${r.passRatio>=50?cssVar('--success'):cssVar('--warning')}"></span></div><b>${r.passRatio}%</b></div></td></tr>`).join('');
-  document.querySelectorAll('#labsPerf .count-link').forEach(b=>b.addEventListener('click',()=>openLabPopup(decodeURIComponent(b.dataset.lab)))); }
+function renderOrg(){renderKPIs();renderProducts();buildBarChart();renderLoginTrends();renderPopular();renderTopPerformers();renderPT();renderLabs();renderCertLeaders();renderNeedAttention();}
+function rerenderCharts(){renderOrg();if(currentUser&&!document.getElementById('userDetailView').classList.contains('hidden')&&currentCourse&&!document.getElementById('courseDetailPane').classList.contains('hidden'))makeDoughnut('cdRing',currentCourse.progress,progressColor(currentCourse.progress),'70%');}
 
-function renderCertLeaders(){ const list=[...USERS].filter(u=>u.certCount>0).sort((a,b)=>b.certCount-a.certCount).slice(0,5);
-  const el=document.getElementById('certLeaders');
-  if(list.length===0){ el.innerHTML='<div class="empty">No certificates issued yet.</div>'; return; }
-  el.innerHTML=list.map((u,i)=>`<div class="rankrow clickable ${i<3?'top'+(i+1):''}" data-uid="${u.id}"><div class="rk">${i+1}</div>
-    <div class="av" style="background:${u.color}">${initials(u.name)}</div>
-    <div class="who"><div class="n">${u.name} ›</div><div class="e">${u.email}</div></div>
-    <div class="score" style="color:var(--gold)">🏅 ${u.certCount}</div></div>`).join('');
-  el.querySelectorAll('.rankrow').forEach(r=>r.addEventListener('click',()=>gotoUserReport(+r.dataset.uid))); }
-
-function renderNeedAttention(){ const list=USERS.filter(u=>u.overall<60).sort((a,b)=>a.overall-b.overall);
-  const body=document.getElementById('needAttention');
-  if(list.length===0){ body.innerHTML='<tr><td colspan="6"><div class="empty">No learners below the progress threshold. 🎉</div></td></tr>'; return; }
-  body.innerHTML=list.map(u=>{ const band=u.overall<35?'Critical (&lt;35%)':(u.overall<50?'At risk (&lt;50%)':'Below target (&lt;60%)');
-    const cls=u.overall<50?'pill':'pill warn';
-    return `<tr><td><input type="checkbox" class="cb na-cb" data-uid="${u.id}"></td>
-      <td><div class="user-cell"><div class="avatar" style="background:${u.color}">${initials(u.name)}</div><span class="nm">${u.name}</span></div></td>
-      <td style="color:var(--text-muted)">${u.email}</td>
-      <td><div class="mini-bar"><div class="track"><span style="width:${u.overall}%;background:${progressColor(u.overall)}"></span></div><b>${u.overall}%</b></div></td>
-      <td>${u.courses.length}</td>
-      <td class="reason"><span class="${cls}">${band}</span></td></tr>`; }).join('');
-  document.getElementById('naSelectAll').checked=false; }
-
-/* popups for content user lists + course enrolments */
-function usersTable(cols, rows){ return `<div class="table-wrap"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`; }
-function userLink(u){ return `<div class="user-cell"><div class="avatar" style="background:${u.color}">${initials(u.name)}</div><span class="nm count-link" data-goto="${u.id}">${u.name}</span></div>`; }
-function wirePopupGoto(){ document.querySelectorAll('#modalMount [data-goto]').forEach(b=>b.addEventListener('click',()=>{ closeModal(); gotoUserReport(+b.dataset.goto); })); }
-function openPTPopup(name){ const agg=PT_AGG.find(a=>a.name===name); const rows=[...agg.users].sort((a,b)=>b.best-a.best).map(r=>
-    `<tr><td>${userLink(r.user)}</td><td style="color:var(--text-muted)">${r.user.email}</td><td>${r.attempts}</td><td><b>${r.best}%</b></td><td><span class="badge ${r.passed?'passed':'failed'}">${r.passed?'Passed':'Not passed'}</span></td><td>${fmtDate(r.lastAccessed)}</td></tr>`).join('');
-  showModal(`<div class="modal-head"><span class="tag" style="background:var(--accent-pt)">Practice Test</span><div><h3>${name}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${agg.userCount} users · ${agg.totalAttempts} attempts · ${agg.passRate}% pass rate</div></div><button class="x" id="modalClose">×</button></div>
-    <div class="modal-body">${usersTable(['User','Email','Attempts','Best Score','Result','Last Accessed'],rows)}</div>`,'wide'); wirePopupGoto(); }
-function openLabPopup(name){ const agg=LAB_AGG.find(a=>a.name===name); const rows=[...agg.users].sort((a,b)=>b.attempts-a.attempts).map(r=>
-    `<tr><td>${userLink(r.user)}</td><td style="color:var(--text-muted)">${r.user.email}</td><td>${r.attempts}</td><td>${r.success}</td><td><span class="badge ${r.validated?'validated':'failed'}">${r.validated?'Validated':'Not validated'}</span></td><td>${fmtDate(r.lastAccessed)}</td></tr>`).join('');
-  showModal(`<div class="modal-head"><span class="tag" style="background:var(--accent-lab)">Lab</span><div><h3>${name}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${agg.userCount} users · ${agg.totalAttempts} attempts · ${agg.passRatio}% pass ratio</div></div><button class="x" id="modalClose">×</button></div>
-    <div class="modal-body">${usersTable(['User','Email','Attempts','Successful','Validation','Last Accessed'],rows)}</div>`,'wide'); wirePopupGoto(); }
-function openCoursePopup(name){ const list=courseUsers(name); const rows=[...list].sort((a,b)=>b.course.progress-a.course.progress).map(({user,course})=>
-    `<tr><td>${userLink(user)}</td><td style="color:var(--text-muted)">${user.email}</td><td><div class="mini-bar"><div class="track"><span style="width:${course.progress}%;background:${progressColor(course.progress)}"></span></div><b>${course.progress}%</b></div></td><td><span class="badge ${statusClass(course.status)}">${course.status}</span></td><td>${course.certGenerated?'<span class="badge generated">🏅 Yes</span>':'—'}</td><td>${fmtDate(course.enrolled)}</td></tr>`).join('');
-  showModal(`<div class="modal-head"><span class="tag" style="background:var(--primary)">Course</span><div><h3>${name}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${list.length} enrolled learners</div></div><button class="x" id="modalClose">×</button></div>
-    <div class="modal-body">${usersTable(['User','Email','Progress','Status','Certificate','Enrolled'],rows)}</div>`,'wide'); wirePopupGoto(); }
-
-/* redirect to user progress tab with the user filtered + opened */
-function gotoUserReport(uid){ const u=USERS.find(x=>x.id===uid); if(!u) return; closeModal();
-  document.querySelector('.tab[data-tab="users"]').click();
-  document.getElementById('userSearch').value=u.name; applyFilters(); openUser(uid); }
-
-function renderLoginTrends(){ const days=[]; const counts=[];
-  const offs=periodOffsets().sort((a,b)=>b-a); // oldest -> newest
-  offs.forEach(d=>{ days.push(dateStr(d)); let c=0; USERS.forEach(u=>{ if(u.loginSet.has(d)) c++; }); counts.push(c); });
-  const peak=Math.max(...counts,0); const avgD=Math.round(counts.reduce((s,x)=>s+x,0)/counts.length);
-  document.getElementById('loginChips').innerHTML=`
-    <div class="chip"><div class="k">Total Logins</div><div class="v">${loginsInPeriod()}</div></div>
-    <div class="chip"><div class="k">Peak / Day</div><div class="v">${peak}</div></div>
-    <div class="chip"><div class="k">Avg / Day</div><div class="v">${avgD}</div></div>
-    <div class="chip"><div class="k">Active Users</div><div class="v">${activeInPeriod()}</div></div>`;
-  const ctx=document.getElementById('loginChart'); if(!ctx)return; if(chartRegistry.login)chartRegistry.login.destroy();
-  const grad=ctx.getContext('2d').createLinearGradient(0,0,0,240); grad.addColorStop(0,'rgba(226,84,44,.35)'); grad.addColorStop(1,'rgba(226,84,44,0)');
-  const step=Math.ceil(days.length/8);
-  chartRegistry.login=new Chart(ctx,{type:'line',data:{labels:days.map(d=>fmtShort(d)),datasets:[{label:'Unique logins',data:counts,
-    borderColor:cssVar('--primary'),backgroundColor:grad,fill:true,tension:.35,pointRadius:0,borderWidth:2.5}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{grid:{display:false},ticks:{color:cssVar('--text-muted'),maxRotation:0,autoSkip:true,callback:function(v,i){return i%step===0?this.getLabelForValue(v):'';}}},
-        y:{grid:{color:cssVar('--border')},ticks:{color:cssVar('--text-muted'),precision:0},beginAtZero:true}}}}); }
-
-/* ===== CHART HELPERS ===== */
-const chartRegistry={};
-function makeDoughnut(id,pct,color,cut){ const ctx=document.getElementById(id); if(!ctx)return; if(chartRegistry[id])chartRegistry[id].destroy();
-  chartRegistry[id]=new Chart(ctx,{type:'doughnut',data:{datasets:[{data:[pct,Math.max(0,100-pct)],backgroundColor:[color,cssVar('--surface-2')],borderWidth:0}]},
-    options:{cutout:(cut||14)+'px',responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{enabled:false}}}}); }
-function buildBarChart(){ const ctx=document.getElementById('barChart'); if(!ctx)return; if(chartRegistry.bar)chartRegistry.bar.destroy();
-  const labels=TYPE_ORDER.map(t=>PRODUCTS[t].label);
-  const util=TYPE_ORDER.map(t=>{const d=ORG.byType[t];return d.assigned?Math.round(d.utilized/d.assigned*100):0;});
-  const comp=TYPE_ORDER.map(t=>{const d=ORG.byType[t];return PRODUCTS[t].completable&&d.assigned?Math.round(d.completed/d.assigned*100):0;});
-  chartRegistry.bar=new Chart(ctx,{type:'bar',data:{labels,datasets:[
-    {label:'Utilization %',data:util,backgroundColor:cssVar('--accent-video'),borderRadius:5},
-    {label:'Completion %',data:comp,backgroundColor:cssVar('--primary'),borderRadius:5}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false},ticks:{color:cssVar('--text-muted')}},
-      y:{grid:{color:cssVar('--border')},ticks:{color:cssVar('--text-muted'),callback:v=>v+'%'},beginAtZero:true,max:100}},
-      plugins:{legend:{position:'top',labels:{color:cssVar('--text-muted'),usePointStyle:true,padding:16}}}}}); }
-
-function renderOrg(){ renderKPIs(); renderProducts(); buildBarChart(); renderLoginTrends(); renderPopular(); renderTopPerformers(); renderPT(); renderLabs(); renderCertLeaders(); renderNeedAttention(); }
-function rerenderCharts(){ renderOrg();
-  if(currentUser && !document.getElementById('userDetailView').classList.contains('hidden')){ renderRadials(currentUser);
-    if(currentCourse && !document.getElementById('courseDetailPane').classList.contains('hidden')) makeDoughnut('cdRing',currentCourse.progress,progressColor(currentCourse.progress),13); } }
-
-/* period + need-attention + download wiring */
-function applyCustomRange(){ const f=document.getElementById('dateFrom').value, t=document.getElementById('dateTo').value; if(!f||!t) return;
-  let fromOff=offsetOf(f), toOff=offsetOf(t); if(fromOff<toOff){ const x=fromOff; fromOff=toOff; toOff=x; }
-  period={mode:'custom',fromOff,toOff}; renderKPIs(); renderLoginTrends(); }
-document.getElementById('periodSel').addEventListener('change',e=>{
-  const v=e.target.value; const custom=document.getElementById('customRange');
-  if(v==='custom'){ custom.classList.remove('hidden'); applyCustomRange(); }
-  else { custom.classList.add('hidden'); period={mode:'preset',days:+v}; renderKPIs(); renderLoginTrends(); } });
+/* period + need attention wiring */
+function applyCustomRange(){const f=document.getElementById('dateFrom').value,t=document.getElementById('dateTo').value;if(!f||!t)return;let fromOff=offsetOf(f),toOff=offsetOf(t);if(fromOff<toOff){const x=fromOff;fromOff=toOff;toOff=x;}period={mode:'custom',fromOff,toOff};renderKPIs();renderLoginTrends();}
+document.getElementById('periodSel').addEventListener('change',e=>{const v=e.target.value,custom=document.getElementById('customRange');if(v==='custom'){custom.classList.remove('hidden');applyCustomRange();}else{custom.classList.add('hidden');period={mode:'preset',days:+v};renderKPIs();renderLoginTrends();}});
 document.getElementById('dateFrom').addEventListener('change',applyCustomRange);
 document.getElementById('dateTo').addEventListener('change',applyCustomRange);
-document.getElementById('naSelectAll').addEventListener('change',e=>{ document.querySelectorAll('.na-cb').forEach(cb=>cb.checked=e.target.checked); });
-document.getElementById('naSendBtn').addEventListener('click',()=>{ const n=document.querySelectorAll('.na-cb:checked').length;
-  if(n===0){ toast('Select at least one learner to remind.'); return; }
-  const cc=document.getElementById('naEmail').value.trim(); toast('Reminder email sent to '+n+' learner'+(n>1?'s':'')+(cc?' (cc '+cc+')':'')+'.');
-  document.querySelectorAll('.na-cb:checked').forEach(cb=>cb.checked=false); document.getElementById('naSelectAll').checked=false; });
+document.getElementById('naSelectAll').addEventListener('change',e=>{document.querySelectorAll('.na-cb').forEach(cb=>cb.checked=e.target.checked);});
+document.getElementById('naSendBtn').addEventListener('click',()=>{const n=document.querySelectorAll('.na-cb:checked').length;if(n===0){toast('Select at least one learner to remind.');return;}const cc=document.getElementById('naEmail').value.trim();toast('Reminder email sent to '+n+' learner'+(n>1?'s':'')+(cc?' (cc '+cc+')':'')+'.');document.querySelectorAll('.na-cb:checked').forEach(cb=>cb.checked=false);document.getElementById('naSelectAll').checked=false;});
 
-/* ===== DOWNLOAD SUMMARY MODAL ===== */
-const EXPORT_SECTIONS=[
-  {id:'kpi',nm:'Headline KPIs',pg:'1 pg',on:true},{id:'login',nm:'Login trends',pg:'1 pg',on:true},
-  {id:'product',nm:'Product engagement',pg:'1 pg',on:true},{id:'courses',nm:'Popular courses',pg:'1 pg',on:true},
-  {id:'perf',nm:'Performance rankings',pg:'+1 pg',on:true},{id:'labs',nm:'Labs performance',pg:'+1 pg',on:false},
-  {id:'certs',nm:'Certificates earned',pg:'+1 pg',on:false},{id:'attention',nm:'Need attention',pg:'+1 pg',on:false},
-  {id:'timeline',nm:'Activity timeline',pg:'+1 pg',on:false}
-];
+/* Download Summary */
+const EXPORT_SECTIONS=[{id:'kpi',nm:'Headline KPIs',pg:'1 pg',on:true},{id:'login',nm:'Login trends',pg:'1 pg',on:true},{id:'product',nm:'Product engagement',pg:'1 pg',on:true},{id:'courses',nm:'Popular courses',pg:'1 pg',on:true},{id:'perf',nm:'Performance rankings',pg:'+1 pg',on:true},{id:'labs',nm:'Labs performance',pg:'+1 pg',on:false},{id:'certs',nm:'Certificates earned',pg:'+1 pg',on:false},{id:'attention',nm:'Need attention',pg:'+1 pg',on:false}];
 let exportFormat='pdf';
-document.getElementById('downloadSummaryBtn').addEventListener('click',openExportModal);
-function openExportModal(){
+document.getElementById('downloadSummaryBtn').addEventListener('click',()=>{
   const secHtml=EXPORT_SECTIONS.map(s=>`<div class="sec-row ${s.on?'on':''}" data-sid="${s.id}"><input type="checkbox" class="cb" ${s.on?'checked':''}><span class="nm">${s.nm}</span><span class="pg">${s.pg}</span></div>`).join('');
   const fmts=[['pdf','📄','PDF','.pdf · multi-page'],['pptx','📊','PowerPoint','.pptx · editable'],['csv','📈','CSV','.csv · raw data'],['png','🖼️','PNG image','.png · single page']];
   const fmtHtml=fmts.map(f=>`<div class="fmt ${f[0]==='pdf'?'on':''}" data-fmt="${f[0]}"><div class="fi">${f[1]}</div><div class="ft">${f[2]}</div><div class="fs">${f[3]}</div></div>`).join('');
-  showModal(`<div class="modal-head"><div><h3>Download Summary</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:3px">Generate a snapshot of the current dashboard · share with leadership without granting portal access</div></div><button class="x" id="modalClose">×</button></div>
-    <div class="modal-body">
-      <div class="exp-label">Period</div>
-      <select class="filter" id="expPeriod" style="width:100%"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="400">All time</option></select>
-      <div class="exp-label">Include sections</div>${secHtml}
-      <div class="exp-label">Format</div><div class="fmt-grid">${fmtHtml}</div>
-      <div class="exp-label">Sharing</div><input class="email-in" id="expEmail" placeholder="Email a copy (optional) — leadership@acme.io" />
-      <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
-        <button class="btn primary" id="expDownload" style="justify-content:center">⬇ Download ${exportFormat.toUpperCase()}</button>
-        <button class="btn" id="expSchedule" style="justify-content:center">🗓 Schedule recurring</button>
-      </div>
-    </div>`,'wide');
-  document.getElementById('expPeriod').value = period.mode==='preset'?String(period.days):'30';
-  document.querySelectorAll('.sec-row').forEach(r=>r.addEventListener('click',e=>{ if(e.target.tagName!=='INPUT'){ const cb=r.querySelector('input'); cb.checked=!cb.checked; } r.classList.toggle('on',r.querySelector('input').checked); }));
-  document.querySelectorAll('.fmt').forEach(f=>f.addEventListener('click',()=>{ document.querySelectorAll('.fmt').forEach(x=>x.classList.remove('on')); f.classList.add('on'); exportFormat=f.dataset.fmt; document.getElementById('expDownload').textContent='⬇ Download '+exportFormat.toUpperCase(); }));
-  document.getElementById('expDownload').addEventListener('click',doExport);
-  document.getElementById('expSchedule').addEventListener('click',()=>{ toast('Recurring report scheduled — every Monday 08:00.'); });
-}
-function doExport(){ const email=document.getElementById('expEmail').value.trim(); const pd=document.getElementById('expPeriod').selectedOptions[0].text;
-  if(exportFormat==='csv'){ downloadOrgCSV(); }
-  else if(exportFormat==='pdf'){ closeModal(); setTimeout(()=>window.print(),200); }
-  else { toast(exportFormat.toUpperCase()+' export queued for “'+pd+'”'+(email?' → '+email:'')+'. (CSV & PDF generate instantly)'); }
-  if(email && exportFormat!=='pdf') toast('Report will be emailed to '+email); }
+  showModal(`<div class="modal-head"><div><h3>Download Summary</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:3px">Generate a snapshot of the dashboard · share with leadership without portal access</div></div><button class="x" id="modalClose">×</button></div><div class="modal-body"><div class="exp-label">Period</div><select class="filter" id="expPeriod" style="width:100%"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="400">All time</option></select><div class="exp-label">Include sections</div>${secHtml}<div class="exp-label">Format</div><div class="fmt-grid">${fmtHtml}</div><div class="exp-label">Sharing</div><input class="email-in" id="expEmail" placeholder="Email a copy (optional) — leadership@acme.io" /><div style="display:flex;flex-direction:column;gap:10px;margin-top:20px"><button class="btn primary" id="expDownload" style="justify-content:center">⬇ Download ${exportFormat.toUpperCase()}</button><button class="btn" id="expSchedule" style="justify-content:center">🗓 Schedule recurring</button></div></div>`,'wide');
+  document.getElementById('expPeriod').value=period.mode==='preset'?String(period.days):'30';
+  document.querySelectorAll('.sec-row').forEach(r=>r.addEventListener('click',e=>{if(e.target.tagName!=='INPUT'){const cb=r.querySelector('input');cb.checked=!cb.checked;}r.classList.toggle('on',r.querySelector('input').checked);}));
+  document.querySelectorAll('.fmt').forEach(f=>f.addEventListener('click',()=>{document.querySelectorAll('.fmt').forEach(x=>x.classList.remove('on'));f.classList.add('on');exportFormat=f.dataset.fmt;document.getElementById('expDownload').textContent='⬇ Download '+exportFormat.toUpperCase();}));
+  document.getElementById('expDownload').addEventListener('click',()=>{const email=document.getElementById('expEmail').value.trim();const pd=document.getElementById('expPeriod').selectedOptions[0].text;if(exportFormat==='csv')downloadOrgCSV();else if(exportFormat==='pdf'){closeModal();setTimeout(()=>window.print(),200);}else{toast(exportFormat.toUpperCase()+' export queued for “'+pd+'”'+(email?' → '+email:'')+'.');}if(email&&exportFormat!=='pdf')toast('Report will be emailed to '+email);});
+  document.getElementById('expSchedule').addEventListener('click',()=>toast('Recurring report scheduled — every Monday 08:00.'));});
+function downloadOrgCSV(){const headers=['User Name','Email','Enrollment Date','Last Active (days)','Courses','Assigned','Utilized','Completed','Certificates','Overall %','PT Pass Rate %','Labs Validation %','Composite Score'];
+  const rows=USERS.map(u=>[u.name,u.email,u.enrolled,u.lastActiveDays>=999?'never':u.lastActiveDays,u.courses.length,u.assigned,u.utilized,u.completed,u.certCount,u.overall,u.ptPassRate,u.labsRate,u.compositeScore]);
+  downloadCSV('acme-organization-user-report.csv',headers,rows);toast('Organization user report downloaded (CSV).');}
+function downloadCSV(f,headers,rows){const esc=v=>{v=String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};const csv=[headers.map(esc).join(','),...rows.map(r=>r.map(esc).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=f;a.click();URL.revokeObjectURL(a.href);}
 
-function downloadOrgCSV(){
-  const headers=['User Name','Email','Enrollment Date','Last Active (days)','Courses','Assigned Products','Utilized','Completed','Certificates','Overall %','PT Pass Rate %','Labs Validation %','Composite Score',
-    'PT Assigned','Video Assigned','Labs Assigned','Sandbox Assigned'];
-  const rows=USERS.map(u=>[u.name,u.email,u.enrolled,u.lastActiveDays>=999?'never':u.lastActiveDays,u.courses.length,u.assigned,u.utilized,u.completed,u.certCount,u.overall,u.ptPassRate,u.labsRate,u.compositeScore,
-    u.cats['Practice Test'].assigned,u.cats['Video Course'].assigned,u.cats['Lab'].assigned,u.cats['Sandbox'].assigned]);
-  downloadCSV('acme-organization-user-report.csv',headers,rows); toast('Organization user report downloaded (CSV).'); }
-function downloadCSV(fname,headers,rows){ const esc=v=>{ v=String(v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
-  const csv=[headers.map(esc).join(','),...rows.map(r=>r.map(esc).join(','))].join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=fname; a.click(); URL.revokeObjectURL(a.href); }
-
-/* ===================== TAB 2 (USER REPORT) ===================== */
-let filtered=[...USERS], sortKey='enroll', sortDir=1, page=1; const PAGE_SIZE=8;
-function progressColor(p){ return p>=75?cssVar('--success'):p>=40?cssVar('--warning'):cssVar('--danger'); }
-function applyFilters(){ const q=document.getElementById('userSearch').value.toLowerCase().trim();
-  const pf=document.getElementById('progressFilter').value, cf=document.getElementById('certFilter').value;
-  filtered=USERS.filter(u=>{ const mq=!q||u.name.toLowerCase().includes(q)||u.email.toLowerCase().includes(q);
-    const mp=pf==='all'||(pf==='high'&&u.overall>=75)||(pf==='mid'&&u.overall>=40&&u.overall<75)||(pf==='low'&&u.overall<40);
-    const mc=cf==='all'||(cf==='has'&&u.certCount>0)||(cf==='none'&&u.certCount===0); return mq&&mp&&mc; });
-  sortData(); page=1; renderTable(); }
-function sortData(){ const km={name:u=>u.name,email:u=>u.email,enroll:u=>u.enrollOffset,assigned:u=>u.assigned,utilized:u=>u.utilized,completed:u=>u.completed,certs:u=>u.certCount,progress:u=>u.overall}; const f=km[sortKey];
-  filtered.sort((a,b)=>{const va=f(a),vb=f(b);return typeof va==='string'?va.localeCompare(vb)*sortDir:(va-vb)*sortDir;}); }
-function renderTable(){ const body=document.getElementById('userTableBody'); const start=(page-1)*PAGE_SIZE; const rows=filtered.slice(start,start+PAGE_SIZE); body.innerHTML='';
-  if(rows.length===0) body.innerHTML='<tr><td colspan="9"><div class="empty">No users match your search or filters.</div></td></tr>';
-  rows.forEach(u=>{ const tr=document.createElement('tr');
-    tr.innerHTML=`<td><div class="user-cell"><div class="avatar" style="background:${u.color}">${initials(u.name)}</div><span class="nm">${u.name}</span></div></td>
-      <td style="color:var(--text-muted)">${u.email}</td><td>${fmtDate(u.enrolled)}</td><td>${u.assigned}</td><td>${u.utilized}</td><td>${u.completed}</td>
-      <td>${u.certCount>0?'<span class="badge generated">🏅 '+u.certCount+'</span>':'<span style="color:var(--text-soft)">—</span>'}</td>
-      <td><div class="mini-bar"><div class="track"><span style="width:${u.overall}%;background:${progressColor(u.overall)}"></span></div><b>${u.overall}%</b></div></td>
-      <td><button class="link-btn" data-uid="${u.id}">View Report ›</button></td>`; body.appendChild(tr); });
+/* USER LIST */
+let filtered=[...USERS],sortKey='enroll',sortDir=1,page=1;const PAGE_SIZE=8;
+function applyFilters(){const q=document.getElementById('userSearch').value.toLowerCase().trim();const pf=document.getElementById('progressFilter').value,cf=document.getElementById('certFilter').value;
+  filtered=USERS.filter(u=>{const mq=!q||u.name.toLowerCase().includes(q)||u.email.toLowerCase().includes(q);const mp=pf==='all'||(pf==='high'&&u.overall>=75)||(pf==='mid'&&u.overall>=40&&u.overall<75)||(pf==='low'&&u.overall<40);const mc=cf==='all'||(cf==='has'&&u.certCount>0)||(cf==='none'&&u.certCount===0);return mq&&mp&&mc;});
+  sortData();page=1;renderTable();}
+function sortData(){const km={name:u=>u.name,email:u=>u.email,enroll:u=>u.enrollOffset,assigned:u=>u.assigned,utilized:u=>u.utilized,completed:u=>u.completed,certs:u=>u.certCount,progress:u=>u.overall};const f=km[sortKey];filtered.sort((a,b)=>{const va=f(a),vb=f(b);return typeof va==='string'?va.localeCompare(vb)*sortDir:(va-vb)*sortDir;});}
+function renderTable(){const body=document.getElementById('userTableBody');const start=(page-1)*PAGE_SIZE;const rows=filtered.slice(start,start+PAGE_SIZE);body.innerHTML='';
+  if(rows.length===0)body.innerHTML='<tr><td colspan="9"><div class="empty">No users match your search or filters.</div></td></tr>';
+  rows.forEach(u=>{const tr=document.createElement('tr');tr.innerHTML=`<td><div class="user-cell"><div class="avatar" style="background:${u.color}">${initials(u.name)}</div><span class="nm">${u.name}</span></div></td><td style="color:var(--text-muted)">${u.email}</td><td>${fmtDate(u.enrolled)}</td><td>${u.assigned}</td><td>${u.utilized}</td><td>${u.completed}</td><td>${u.certCount>0?'<span class="badge generated">🏅 '+u.certCount+'</span>':'<span style="color:var(--text-soft)">—</span>'}</td><td><div class="mini-bar"><div class="track"><span style="width:${u.overall}%;background:${progressColor(u.overall)}"></span></div><b>${u.overall}%</b></div></td><td><button class="link-btn" data-uid="${u.id}">View Report ›</button></td>`;body.appendChild(tr);});
   body.querySelectorAll('.link-btn').forEach(b=>b.addEventListener('click',()=>openUser(+b.dataset.uid)));
-  const total=filtered.length,showFrom=total===0?0:start+1,showTo=Math.min(start+PAGE_SIZE,total);
-  document.getElementById('pageInfo').textContent=`Showing ${showFrom}–${showTo} of ${total} users`; renderPager(total); }
-function renderPager(total){ const pages=Math.ceil(total/PAGE_SIZE)||1; const ctn=document.getElementById('pageControls'); ctn.innerHTML='';
-  const mk=(l,p,dis,act)=>{const b=document.createElement('button');b.textContent=l;if(dis)b.disabled=true;if(act)b.classList.add('active');b.addEventListener('click',()=>{page=p;renderTable();});ctn.appendChild(b);};
-  mk('‹',Math.max(1,page-1),page===1);
-  for(let i=1;i<=pages;i++){ if(pages>7&&i>2&&i<pages-1&&Math.abs(i-page)>1){ if(i===3||i===pages-2){const s=document.createElement('button');s.textContent='…';s.disabled=true;ctn.appendChild(s);} continue; } mk(i,i,false,i===page); }
-  mk('›',Math.min(pages,page+1),page===pages); }
+  const total=filtered.length,sf=total===0?0:start+1,stt=Math.min(start+PAGE_SIZE,total);document.getElementById('pageInfo').textContent=`Showing ${sf}–${stt} of ${total} users`;renderPager(total);}
+function renderPager(total){const pages=Math.ceil(total/PAGE_SIZE)||1;const ctn=document.getElementById('pageControls');ctn.innerHTML='';const mk=(l,p,dis,act)=>{const b=document.createElement('button');b.textContent=l;if(dis)b.disabled=true;if(act)b.classList.add('active');b.addEventListener('click',()=>{page=p;renderTable();});ctn.appendChild(b);};
+  mk('‹',Math.max(1,page-1),page===1);for(let i=1;i<=pages;i++){if(pages>7&&i>2&&i<pages-1&&Math.abs(i-page)>1){if(i===3||i===pages-2){const s=document.createElement('button');s.textContent='…';s.disabled=true;ctn.appendChild(s);}continue;}mk(i,i,false,i===page);}mk('›',Math.min(pages,page+1),page===pages);}
 document.getElementById('userSearch').addEventListener('input',applyFilters);
 document.getElementById('progressFilter').addEventListener('change',applyFilters);
 document.getElementById('certFilter').addEventListener('change',applyFilters);
 document.querySelectorAll('#tab-users thead th.sortable').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.sort;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;}sortData();renderTable();}));
-document.getElementById('exportBtn').addEventListener('click',()=>{
-  const headers=['User Name','Email','Enrollment Date','Assigned','Utilized','Completed','Certificates','Overall %'];
-  const rows=filtered.map(u=>[u.name,u.email,u.enrolled,u.assigned,u.utilized,u.completed,u.certCount,u.overall+'%']);
-  downloadCSV('company-user-report.csv',headers,rows); toast('Filtered user list exported (CSV).'); });
+document.getElementById('exportBtn').addEventListener('click',()=>{const headers=['User Name','Email','Enrollment Date','Assigned','Utilized','Completed','Certificates','Overall %'];const rows=filtered.map(u=>[u.name,u.email,u.enrolled,u.assigned,u.utilized,u.completed,u.certCount,u.overall+'%']);downloadCSV('company-user-report.csv',headers,rows);toast('Filtered user list exported (CSV).');});
 
+/* INDIVIDUAL REPORT (no product-type rings) */
 let currentUser=null,currentCourse=null,currentSubtype='Practice Test';
-function openUser(id){ currentUser=USERS.find(u=>u.id===id);
-  document.getElementById('userListView').classList.add('hidden'); document.getElementById('userDetailView').classList.remove('hidden'); showCourseList(); window.scrollTo({top:0,behavior:'smooth'});
-  const u=currentUser;
-  document.getElementById('duAvatar').textContent=initials(u.name); document.getElementById('duAvatar').style.background=u.color;
-  document.getElementById('duName').textContent=u.name;
+function openUser(id){currentUser=USERS.find(u=>u.id===id);document.getElementById('userListView').classList.add('hidden');document.getElementById('userDetailView').classList.remove('hidden');showCourseList();window.scrollTo({top:0,behavior:'smooth'});
+  const u=currentUser;document.getElementById('duAvatar').textContent=initials(u.name);document.getElementById('duAvatar').style.background=u.color;document.getElementById('duName').textContent=u.name;
   document.getElementById('duMeta').textContent=`${u.email} · Enrolled ${fmtDate(u.enrolled)} · Last active ${u.lastActiveDays<=1?'today':u.lastActiveDays+' days ago'}`;
-  document.getElementById('duOverall').textContent=u.overall+'%'; document.getElementById('duOverall').style.color=progressColor(u.overall);
-  document.getElementById('duCerts').textContent=u.certCount; document.getElementById('duCourses').textContent=u.courses.length;
-  renderRadials(u); renderCerts(u); renderCourseList(u); }
-document.getElementById('backToList').addEventListener('click',()=>{ document.getElementById('userDetailView').classList.add('hidden'); document.getElementById('userListView').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); });
+  document.getElementById('duOverall').textContent=u.overall+'%';document.getElementById('duOverall').style.color=progressColor(u.overall);document.getElementById('duCerts').textContent=u.certCount;document.getElementById('duCourses').textContent=u.courses.length;
+  renderCerts(u);renderCourseList(u);}
+document.getElementById('backToList').addEventListener('click',()=>{document.getElementById('userDetailView').classList.add('hidden');document.getElementById('userListView').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});});
 document.getElementById('printReportBtn').addEventListener('click',()=>window.print());
-document.getElementById('exportUserBtn').addEventListener('click',()=>exportUserCSV(currentUser));
-function exportUserCSV(u){ const headers=['Course','Product Type','Item','Status','Progress/Score','Last Accessed']; const rows=[];
-  u.courses.forEach(c=>TYPE_ORDER.forEach(t=>c.items[t].forEach(it=>{ const val=t==='Practice Test'?it.passPct+'%':(t==='Sandbox'?it.usageTime:it.progress+'%');
-    rows.push([c.name,t,it.name,it.status,val,it.lastAccessed]); })));
-  downloadCSV((u.name.replace(/\s+/g,'-').toLowerCase())+'-report.csv',headers,rows); toast(u.name+"'s full report exported (CSV)."); }
-function showCourseList(){ document.getElementById('courseListPane').classList.remove('hidden'); document.getElementById('courseDetailPane').classList.add('hidden'); currentCourse=null; }
-function renderRadials(u){ const grid=document.getElementById('radialGrid'); grid.innerHTML='';
-  TYPE_ORDER.forEach(type=>{ const meta=PRODUCTS[type],c=u.cats[type]; let l2;
-    if(type==='Practice Test')l2=`<span>Passed <b>${c.completed}</b></span><span>Assigned <b>${c.assigned}</b></span>`;
-    else if(type==='Sandbox')l2=`<span>Utilized <b>${c.utilized}</b></span><span>Assigned <b>${c.assigned}</b></span>`;
-    else l2=`<span>Completed <b>${c.completed}</b></span><span>Assigned <b>${c.assigned}</b></span>`;
-    const el=document.createElement('div'); el.className='card radial-card';
-    el.innerHTML=`<div class="rc-head"><span class="dot" style="background:var(${meta.color})"></span><h4>${meta.label}</h4></div>
-      <div class="radial-wrap"><canvas id="rad-${meta.key}"></canvas><div class="center"><b>${c.progress}%</b></div></div><div class="radial-detail">${l2}</div>`; grid.appendChild(el); });
-  TYPE_ORDER.forEach(type=>makeDoughnut('rad-'+PRODUCTS[type].key,u.cats[type].progress,cssVar(PRODUCTS[type].color),17)); }
-function renderCerts(u){ const wrap=document.getElementById('certGrid'); wrap.innerHTML='';
-  if(u.certificates.length===0){ wrap.innerHTML='<div class="empty" style="grid-column:1/-1">No certificates earned yet. Issued automatically once each course’s configured criteria are met.</div>'; return; }
-  u.certificates.forEach(c=>{ const idx=u.courses.indexOf(c); const el=document.createElement('div'); el.className='card certcard';
-    el.innerHTML=`<div class="medal">🏅</div><div class="ci"><div class="cn">${c.name}</div><div class="cd">${c.certType} · Issued ${fmtDate(c.certDate)}</div></div>
-      <button class="btn primary sm" data-cert="${idx}">View</button>`; wrap.appendChild(el); });
-  wrap.querySelectorAll('[data-cert]').forEach(b=>b.addEventListener('click',()=>openCertificate(u,u.courses[+b.dataset.cert]))); }
-function renderCourseList(u){ const body=document.getElementById('courseTableBody'); body.innerHTML='';
-  u.courses.forEach((c,idx)=>{ const bc=c.status==='Certified'?'certified':c.status==='In Progress'?'progress':'notstarted'; const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:600;white-space:normal;max-width:280px">${c.name}<div style="font-size:11px;color:var(--text-soft);font-weight:500;margin-top:2px">${c.cat} · Cert: ${c.certType}</div></td>
-      <td>${fmtDate(c.enrolled)}</td><td>${fmtDate(c.lastAccessed)}</td>
-      <td><div class="mini-bar"><div class="track"><span style="width:${c.progress}%;background:${progressColor(c.progress)}"></span></div><b>${c.progress}%</b></div></td>
-      <td><span class="badge ${bc}">${c.status}</span></td>
-      <td>${c.certGenerated?'<span class="badge generated">Generated</span><div style="font-size:11px;color:var(--text-soft);margin-top:3px">'+fmtDate(c.certDate)+'</div>':'<span class="badge pending">Pending</span>'}</td>
-      <td><button class="link-btn" data-cidx="${idx}">View ›</button></td>`; body.appendChild(tr); });
-  body.querySelectorAll('.link-btn').forEach(b=>b.addEventListener('click',()=>openCourse(+b.dataset.cidx))); }
-function openCourse(idx){ currentCourse=currentUser.courses[idx];
-  document.getElementById('courseListPane').classList.add('hidden'); document.getElementById('courseDetailPane').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'});
-  const c=currentCourse;
-  document.getElementById('courseCrumbs').innerHTML=`<span class="c" id="crumbUser">${currentUser.name}</span> › <span class="c" id="crumbCourses">Course Records</span> › ${c.name}`;
-  document.getElementById('crumbUser').addEventListener('click',showCourseList); document.getElementById('crumbCourses').addEventListener('click',showCourseList);
-  document.getElementById('cdCat').textContent=c.cat; document.getElementById('cdName').textContent=c.name;
-  document.getElementById('cdMeta').textContent=`Enrolled ${fmtDate(c.enrolled)} · Last accessed ${fmtDate(c.lastAccessed)} · Status: ${c.status}`;
-  document.getElementById('cdRingVal').textContent=c.progress+'%'; makeDoughnut('cdRing',c.progress,progressColor(c.progress),13); renderCertPanel(c);
-  const st=document.getElementById('courseSubtabs'); st.innerHTML=''; currentSubtype=TYPE_ORDER.find(t=>c.items[t].length>0)||'Practice Test';
-  TYPE_ORDER.forEach(type=>{ const meta=PRODUCTS[type],n=c.items[type].length; const el=document.createElement('div'); el.className='subtab'+(type===currentSubtype?' active':'');
-    if(type===currentSubtype){el.style.background=cssVar(meta.color);el.style.borderColor=cssVar(meta.color);}
-    el.innerHTML=`<span class="dot" style="background:${type===currentSubtype?'#fff':'var('+meta.color+')'}"></span>${meta.label}<span class="count">${n}</span>`;
-    el.addEventListener('click',()=>{currentSubtype=type;openCourse(idx);}); st.appendChild(el); });
-  renderItems(c,currentSubtype); }
-function renderCertPanel(c){ const p=document.getElementById('certPanel');
-  const crit=c.conditions.map(cn=>`<div class="c"><div class="ci2" style="background:${cn.met?cssVar('--success'):cssVar('--text-soft')}">${cn.met?'✓':'!'}</div><div><div class="lbl">${cn.label}</div><div class="sub">${cn.detail}</div></div></div>`).join('');
-  p.innerHTML=`<div class="cp-head"><h3>Certification Criteria &amp; Eligibility</h3><span class="cp-type">${c.certType}</span>
-    <div class="cp-status" style="color:${c.certGenerated?cssVar('--success'):cssVar('--warning')}">${c.certGenerated?'🏅 Certificate Generated':'⏳ Certificate Pending'}${c.certGenerated?'<button class="btn primary sm" id="viewCertBtn" style="margin-left:6px">View Certificate</button>':''}</div></div>
-    <div class="crit">${crit}</div>
-    <div style="font-size:12px;color:var(--text-muted);margin-top:14px">Course progress = average of the configured criteria (${c.certType}). ${c.cfg.labs?'Labs threshold set at '+c.labsReq+'% for this client.':''} Sandboxes are utilization-only and excluded from certification.</div>`;
-  if(c.certGenerated) document.getElementById('viewCertBtn').addEventListener('click',()=>openCertificate(currentUser,c)); }
-function renderItems(course,type){ const head=document.getElementById('itemHead'),body=document.getElementById('itemBody'); const items=course.items[type]; let cols;
-  if(type==='Practice Test')cols=['Quiz Name','Last Accessed Date','Status','Pass Percentage','Action'];
-  else if(type==='Video Course')cols=['Video Section','Last Accessed Date','Status','Progress','Action'];
-  else if(type==='Lab')cols=['Lab Name','Last Accessed Date','Status','Attempts','Action'];
-  else cols=['Sandbox Name','Last Accessed Date','Status','Launches','Usage Time','Action'];
-  head.innerHTML='<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>'; body.innerHTML='';
-  if(items.length===0){ body.innerHTML=`<tr><td colspan="${cols.length}"><div class="empty">No ${PRODUCTS[type].label.toLowerCase()} in this course.</div></td></tr>`; return; }
-  items.forEach((it,i)=>{ const sc=statusClass(it.status); let mid;
-    if(type==='Practice Test')mid=`<td><span class="badge ${sc}">${it.status}</span></td><td><b>${it.passPct}%</b></td>`;
-    else if(type==='Video Course')mid=`<td><span class="badge ${sc}">${it.status}</span></td><td><div class="mini-bar"><div class="track"><span style="width:${it.progress}%;background:${progressColor(it.progress)}"></span></div><b>${it.progress}%</b></div></td>`;
-    else if(type==='Lab')mid=`<td><span class="badge ${sc}">${it.status}</span></td><td>${it.attempts}</td>`;
-    else mid=`<td><span class="badge ${sc}">${it.status}</span></td><td>${it.launches}</td><td>${it.usageTime}</td>`;
-    const tr=document.createElement('tr'); tr.innerHTML=`<td style="font-weight:600">${it.name}</td><td>${fmtDate(it.lastAccessed)}</td>${mid}<td><button class="link-btn" data-i="${i}">View ›</button></td>`; body.appendChild(tr); });
-  body.querySelectorAll('.link-btn').forEach(b=>b.addEventListener('click',()=>openActivity(course.items[type][+b.dataset.i]))); }
-function statusClass(s){ return ({'Completed':'completed','Passed':'passed','Validated':'validated','Certified':'certified','In Progress':'progress','Active':'active','Failed':'failed','Not Started':'notstarted','Not Attempted':'na'})[s]||'notstarted'; }
-function openActivity(item){ const meta=PRODUCTS[item.type]; let summary='',actCols=[];
-  if(item.type==='Practice Test'){ summary=chips([['Attempts',item.attempts],['Best Score',item.passPct+'%'],['Latest Score',(item.latest||0)+'%'],['Status',item.status]]); actCols=['#','Date','Score','Result','Time Spent']; }
-  else if(item.type==='Video Course'){ summary=chips([['Modules',item.modulesDone+' / '+item.modulesTotal],['Completion',item.progress+'%'],['Status',item.status]]); actCols=['#','Date','Modules Watched','Watch Time','Progress After']; }
-  else if(item.type==='Lab'){ summary=chips([['Attempts',item.attempts],['Successful',item.successful],['Status',item.status]]); actCols=['#','Date','Result','Duration']; }
-  else { summary=chips([['Launches',item.launches],['Usage Time',item.usageTime],['Status',item.status]]); actCols=['#','Date','Duration','Actions']; }
-  let table; if(item.activities.length===0) table='<div class="empty">No activity recorded yet.</div>';
-  else table='<table style="font-size:13px"><thead><tr>'+actCols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>'
-    +item.activities.map(a=>'<tr>'+actCols.map(c=>{let v=a[c]; if(c==='Result')v=`<span class="badge ${v==='Pass'||v==='Validated'?'passed':'failed'}">${v}</span>`; else if(c==='Date')v=fmtDate(v); return `<td>${v}</td>`;}).join('')+'</tr>').join('')+'</tbody></table>';
-  showModal(`<div class="modal-head"><span class="tag" style="background:var(${meta.color})">${meta.label}</span><div><h3>${item.name}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${currentUser.name} · ${currentCourse.name}</div></div><button class="x" id="modalClose">×</button></div>
-    <div class="modal-body"><div class="summary-row">${summary}</div><div class="act-title">User Activity Log</div><div class="table-wrap">${table}</div></div>`); }
-function chips(arr){ return arr.map(([k,v])=>`<div class="chip"><div class="k">${k}</div><div class="v">${v}</div></div>`).join(''); }
-function openCertificate(u,c){ const cid='WZ-'+c.name.replace(/[^A-Z0-9]/gi,'').slice(0,6).toUpperCase()+'-'+String(u.id).padStart(3,'0')+'-2026';
-  showModal(`<div class="modal-head"><h3>Certificate</h3><button class="x" id="modalClose">×</button></div>
-    <div class="modal-body"><div id="certificate" class="certificate">
-      <div class="cert-logo">BUSINESS LMS · ACME CORP</div><h1>Certificate</h1><div class="sub">OF COMPLETION</div>
-      <div class="awarded">THIS CERTIFICATE IS PROUDLY PRESENTED TO</div><div class="name">${u.name}</div>
-      <div class="desc">for successfully completing <span class="course-name">${c.name}</span>, meeting all configured certification criteria (<b>${c.certType}</b>) with an overall course progress of <b>${c.progress}%</b>.</div>
-      <div class="seal">★</div>
-      <div class="cert-foot"><div class="f">Date Issued<b>${fmtDate(c.certDate)}</b></div><div class="f">Certificate ID<b>${cid}</b></div><div class="f">Authorized By<b>Acme Corp L&amp;D</b></div></div></div>
-      <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end"><button class="btn" id="printCertBtn">🖨️ Print / Save PDF</button></div></div>`,'wide');
-  document.getElementById('printCertBtn').addEventListener('click',()=>{ document.body.classList.add('print-cert'); window.print(); setTimeout(()=>document.body.classList.remove('print-cert'),600); }); }
-
-/* ===== MODAL ===== */
-function showModal(inner,cls){ const mount=document.getElementById('modalMount');
-  mount.innerHTML=`<div class="modal-overlay" id="overlay"><div class="modal ${cls||''}">${inner}</div></div>`;
-  document.getElementById('modalClose').addEventListener('click',closeModal);
-  document.getElementById('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeModal();}); }
-function closeModal(){ document.getElementById('modalMount').innerHTML=''; }
+document.getElementById('exportUserBtn').addEventListener('click',()=>{const u=currentUser;const headers=['Course','Product Type','Item','Status','Progress/Score','Last Accessed'];const rows=[];u.courses.forEach(c=>TYPE_ORDER.forEach(t=>c.items[t].forEach(it=>{const val=t==='Practice Test'?it.passPct+'%':(t==='Sandbox'?it.usageTime:it.progress+'%');rows.push([c.name,t,it.name,it.status,val,it.lastAccessed]);})));downloadCSV((u.name.replace(/\s+/g,'-').toLowerCase())+'-report.csv',headers,rows);toast(u.name+"'s full report exported (CSV).");});
+function showCourseList(){document.getElementById('courseListPane').classList.remove('hidden');document.getElementById('courseDetailPane').classList.add('hidden');currentCourse=null;}
+function renderCerts(u){const wrap=document.getElementById('certGrid');wrap.innerHTML='';if(u.certificates.length===0){wrap.innerHTML='<div class="empty" style="grid-column:1/-1">No certificates earned yet. Issued automatically once the client-wide criteria are met.</div>';return;}
+  u.certificates.forEach(c=>{const idx=u.courses.indexOf(c);const el=document.createElement('div');el.className='card certcard';el.innerHTML=`<div class="medal">🏅</div><div class="ci"><div class="cn">${c.name}</div><div class="cd">${c.certType} · Issued ${fmtDate(c.certDate)}</div></div><button class="btn primary sm" data-cert="${idx}">View</button>`;wrap.appendChild(el);});
+  wrap.querySelectorAll('[data-cert]').forEach(b=>b.addEventListener('click',()=>openCertificate(u,u.courses[+b.dataset.cert])));}
+function renderCourseList(u){const body=document.getElementById('courseTableBody');body.innerHTML='';
+  u.courses.forEach((c,idx)=>{const bc=c.status==='Certified'?'certified':c.status==='In Progress'?'progress':'notstarted';const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:600;white-space:normal;max-width:280px">${c.name}<div style="font-size:11px;color:var(--text-soft);font-weight:500;margin-top:2px">${c.cat}</div></td><td>${fmtDate(c.enrolled)}</td><td>${fmtDate(c.lastAccessed)}</td><td><div class="mini-bar"><div class="track"><span style="width:${c.progress}%;background:${progressColor(c.progress)}"></span></div><b>${c.progress}%</b></div></td><td><span class="badge ${bc}">${c.status}</span></td><td>${c.certGenerated?'<span class="badge generated">Generated</span><div style="font-size:11px;color:var(--text-soft);margin-top:3px">'+fmtDate(c.certDate)+'</div>':'<span class="badge pending">Pending</span>'}</td><td><button class="link-btn" data-cidx="${idx}">View ›</button></td>`;body.appendChild(tr);});
+  body.querySelectorAll('.link-btn').forEach(b=>b.addEventListener('click',()=>openCourse(+b.dataset.cidx)));}
+function openCourse(idx,sub){currentCourse=currentUser.courses[idx];document.getElementById('courseListPane').classList.add('hidden');document.getElementById('courseDetailPane').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});
+  const c=currentCourse;document.getElementById('courseCrumbs').innerHTML=`<span class="c" id="crumbUser">${currentUser.name}</span> › <span class="c" id="crumbCourses">Course Records</span> › ${c.name}`;
+  document.getElementById('crumbUser').addEventListener('click',showCourseList);document.getElementById('crumbCourses').addEventListener('click',showCourseList);
+  document.getElementById('cdCat').textContent=c.cat;document.getElementById('cdName').textContent=c.name;document.getElementById('cdMeta').textContent=`Enrolled ${fmtDate(c.enrolled)} · Last accessed ${fmtDate(c.lastAccessed)} · Status: ${c.status}`;
+  document.getElementById('cdRingVal').textContent=c.progress+'%';makeDoughnut('cdRing',c.progress,progressColor(c.progress),'70%');
+  const parts=c.conditions.map(x=>x.label.replace(/ = 100%| validated/g,'')+' — '+x.detail);
+  document.getElementById('cdProg').setAttribute('data-tip','Course progress = average of the client-wide criteria ('+c.certType+'). '+parts.join('   ·   ')+'.   Average = '+c.progress+'%. Sandboxes are utilization-only and excluded.');
+  const st=document.getElementById('courseSubtabs');st.innerHTML='';currentSubtype=sub||TYPE_ORDER.find(t=>c.items[t].length>0)||'Practice Test';
+  TYPE_ORDER.forEach(type=>{const meta=PRODUCTS[type],n=c.items[type].length;const el=document.createElement('div');el.className='subtab'+(type===currentSubtype?' active':'');if(type===currentSubtype){el.style.background=cssVar(meta.color);el.style.borderColor=cssVar(meta.color);}el.innerHTML=`<span class="dot" style="background:${type===currentSubtype?'#fff':'var('+meta.color+')'}"></span>${meta.label}<span class="count">${n}</span>`;el.addEventListener('click',()=>{openCourse(idx,type);});st.appendChild(el);});
+  renderItems(c,currentSubtype);}
+function renderCertPanel(c){const p=document.getElementById('certPanel');const crit=c.conditions.map(cn=>`<div class="c"><div class="ci2" style="background:${cn.met?cssVar('--success'):cssVar('--text-soft')}">${cn.met?'✓':'!'}</div><div><div class="lbl">${cn.label}</div><div class="sub">${cn.detail}</div></div></div>`).join('');
+  p.innerHTML=`<div class="cp-head"><h3>Certification Criteria &amp; Eligibility</h3><span class="cp-type">${c.certType}</span><div class="cp-status" style="color:${c.certGenerated?cssVar('--success'):cssVar('--warning')}">${c.certGenerated?'🏅 Certificate Generated':'⏳ Certificate Pending'}${c.certGenerated?'<button class="btn primary sm" id="viewCertBtn" style="margin-left:6px">View Certificate</button>':''}</div></div><div class="crit">${crit}</div><div style="font-size:12px;color:var(--text-muted);margin-top:14px">Course progress = average of the client-wide criteria (${c.certType}). Labs threshold ${c.labsReq}%. Sandboxes are utilization-only and excluded from certification.</div>`;
+  if(c.certGenerated)document.getElementById('viewCertBtn').addEventListener('click',()=>openCertificate(currentUser,c));}
+function renderItems(course,type){const head=document.getElementById('itemHead'),body=document.getElementById('itemBody');const items=course.items[type];let cols;
+  if(type==='Practice Test')cols=['Quiz Name','Last Accessed Date','Status','Pass Percentage','Action'];else if(type==='Video Course')cols=['Video Section','Last Accessed Date','Status','Progress','Action'];else if(type==='Lab')cols=['Lab Name','Last Accessed Date','Status','Attempts','Action'];else cols=['Sandbox Name','Last Accessed Date','Status','Launches','Usage Time','Action'];
+  head.innerHTML='<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';body.innerHTML='';
+  if(items.length===0){body.innerHTML=`<tr><td colspan="${cols.length}"><div class="empty">No ${PRODUCTS[type].label.toLowerCase()} in this course.</div></td></tr>`;return;}
+  items.forEach((it,i)=>{const sc=statusClass(it.status);let mid;
+    if(type==='Practice Test')mid=`<td><span class="badge ${sc}">${it.status}</span></td><td><b>${it.passPct}%</b></td>`;else if(type==='Video Course')mid=`<td><span class="badge ${sc}">${it.status}</span></td><td><div class="mini-bar"><div class="track"><span style="width:${it.progress}%;background:${progressColor(it.progress)}"></span></div><b>${it.progress}%</b></div></td>`;else if(type==='Lab')mid=`<td><span class="badge ${sc}">${it.status}</span></td><td>${it.attempts}</td>`;else mid=`<td><span class="badge ${sc}">${it.status}</span></td><td>${it.launches}</td><td>${it.usageTime}</td>`;
+    const tr=document.createElement('tr');tr.innerHTML=`<td style="font-weight:600">${it.name}</td><td>${fmtDate(it.lastAccessed)}</td>${mid}<td><button class="link-btn" data-i="${i}">View ›</button></td>`;body.appendChild(tr);});
+  body.querySelectorAll('.link-btn').forEach(b=>b.addEventListener('click',()=>openActivity(course.items[type][+b.dataset.i])));}
+function statusClass(s){return ({'Completed':'completed','Passed':'passed','Validated':'validated','Certified':'certified','In Progress':'progress','Active':'active','Failed':'failed','Not Started':'notstarted','Not Attempted':'na'})[s]||'notstarted';}
+function openActivity(item){const meta=PRODUCTS[item.type];let summary='',actCols=[];
+  if(item.type==='Practice Test'){summary=chips([['Attempts',item.attempts],['Best Score',item.passPct+'%'],['Latest Score',(item.latest||0)+'%'],['Status',item.status]]);actCols=['#','Date','Score','Result','Time Spent'];}
+  else if(item.type==='Video Course'){summary=chips([['Modules',item.modulesDone+' / '+item.modulesTotal],['Completion',item.progress+'%'],['Status',item.status]]);actCols=['#','Date','Modules Watched','Watch Time','Progress After'];}
+  else if(item.type==='Lab'){summary=chips([['Attempts',item.attempts],['Successful',item.successful],['Status',item.status]]);actCols=['#','Date','Result','Duration'];}
+  else{summary=chips([['Launches',item.launches],['Usage Time',item.usageTime],['Status',item.status]]);actCols=['#','Date','Duration','Actions'];}
+  let table;if(item.activities.length===0)table='<div class="empty">No activity recorded yet.</div>';
+  else table='<table style="font-size:13px"><thead><tr>'+actCols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>'+item.activities.map(a=>'<tr>'+actCols.map(c=>{let v=a[c];if(c==='Result')v=`<span class="badge ${v==='Pass'||v==='Validated'?'passed':'failed'}">${v}</span>`;else if(c==='Date')v=fmtDate(v);return `<td>${v}</td>`;}).join('')+'</tr>').join('')+'</tbody></table>';
+  showModal(`<div class="modal-head"><span class="tag" style="background:var(${meta.color})">${meta.label}</span><div><h3>${item.name}</h3><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${currentUser.name} · ${currentCourse.name}</div></div><button class="x" id="modalClose">×</button></div><div class="modal-body"><div class="summary-row">${summary}</div><div class="act-title">User Activity Log</div><div class="table-wrap">${table}</div></div>`);}
+function chips(arr){return arr.map(([k,v])=>`<div class="chip"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');}
+function openCertificate(u,c){const cid='WZ-'+c.name.replace(/[^A-Z0-9]/gi,'').slice(0,6).toUpperCase()+'-'+String(u.id).padStart(3,'0')+'-2026';
+  showModal(`<div class="modal-head"><h3>Certificate</h3><button class="x" id="modalClose">×</button></div><div class="modal-body"><div id="certificate" class="certificate"><div class="cert-logo">BUSINESS LMS · ACME CORP</div><h1>Certificate</h1><div class="sub">OF COMPLETION</div><div class="awarded">THIS CERTIFICATE IS PROUDLY PRESENTED TO</div><div class="name">${u.name}</div><div class="desc">for successfully completing <span class="course-name">${c.name}</span>, meeting all configured certification criteria (<b>${c.certType}</b>) with an overall course progress of <b>${c.progress}%</b>.</div><div class="seal">★</div><div class="cert-foot"><div class="f">Date Issued<b>${fmtDate(c.certDate)}</b></div><div class="f">Certificate ID<b>${cid}</b></div><div class="f">Authorized By<b>Acme Corp L&amp;D</b></div></div></div><div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end"><button class="btn" id="printCertBtn">🖨️ Print / Save PDF</button></div></div>`,'wide');
+  document.getElementById('printCertBtn').addEventListener('click',()=>{document.body.classList.add('print-cert');window.print();setTimeout(()=>document.body.classList.remove('print-cert'),600);});}
+function showModal(inner,cls){const m=document.getElementById('modalMount');m.innerHTML=`<div class="modal-overlay" id="overlay"><div class="modal ${cls||''}">${inner}</div></div>`;document.getElementById('modalClose').addEventListener('click',closeModal);document.getElementById('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeModal();});}
+function closeModal(){document.getElementById('modalMount').innerHTML='';}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');const w=t.dataset.tab;document.getElementById('tab-org').classList.toggle('hidden',w!=='org');document.getElementById('tab-users').classList.toggle('hidden',w!=='users');}));
 
-/* ===== TABS ===== */
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
-  const w=t.dataset.tab; document.getElementById('tab-org').classList.toggle('hidden',w!=='org'); document.getElementById('tab-users').classList.toggle('hidden',w!=='users'); }));
-
-/* ===== INIT ===== */
-renderOrg(); applyFilters();
+renderOrg();applyFilters();
 </script>
 </body>
 </html>
